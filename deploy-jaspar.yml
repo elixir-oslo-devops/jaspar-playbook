@@ -1,0 +1,25 @@
+---
+- name: Deploy test server in NREC
+  hosts: localhost
+
+  tasks:
+    - name: Create a new keypair
+      openstack.cloud.keypair:
+          state: present
+          name: ansible-test-key
+
+    - name: Create a new instance and attaches to a network # and passes metadata to the instance
+      openstack.cloud.server:
+           state: present
+           name: ansible-test
+           image: UiO Managed RHEL 8
+           key_name: ansible-test-key
+           timeout: 200
+           flavor: m1.small
+           nics:
+             - net-name: dualStack
+           security_groups:
+             - default
+    #       meta:
+    #         hostname: test1
+    #         group: uge_master
