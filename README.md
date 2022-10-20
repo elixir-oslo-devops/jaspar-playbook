@@ -42,4 +42,7 @@ export OS_NO_CACHE=1
 
 ## Running playbook
 
-`ansible-playbook deploy-jaspar.yml`
+```
+source keystone_rc.sh  # run once, to set up environment variables
+ansible-playbook deploy-jaspar.yml
+```
