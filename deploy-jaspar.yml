@@ -7,6 +7,15 @@
       openstack.cloud.keypair:
           state: present
           name: ansible-test-key
+      register: keypair_result
+
+    - name: Save private key file
+      ansible.builtin.copy:
+        content: '{{ keypair_result.key.private_key }}'
+        dest: '{{ keypair_result.key.name }}.pem'
+        mode: '0600'
+        backup: yes
+      when: keypair_result.changed and keypair_result.key is defined
 
     - name: Create a new instance and attaches to a network # and passes metadata to the instance
       openstack.cloud.server:
