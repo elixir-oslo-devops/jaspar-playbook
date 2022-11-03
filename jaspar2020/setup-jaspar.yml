@@ -1,0 +1,56 @@
+---
+- name: Set up JASPAR instance
+  hosts: test.jaspar.uiocloud.no
+
+  tasks:
+    - name: Clone branding repo
+      ansible.builtin.git:
+        repo: 'https://bitbucket.org/CBGR/jaspar-branding.git'
+        dest: '{{ jaspar_base_dir }}/jaspar-branding'
+
+    - name: Allows apache to read files in git repo
+      become: yes
+      community.general.sefcontext:
+        target: '{{ jaspar_base_dir }}/jaspar-branding(/.*)?'
+        setype: git_content_t
+        state: present
+      register: branding_sefcontext
+
+    - name: Apply SELinux file context
+      become: yes
+      ansible.builtin.command: 'restorecon -irv {{ jaspar_base_dir }}/jaspar-branding'
+      when: branding_sefcontext.changed
+
+    # not tested
+    - name: Run initial privileged deploy scripts
+      tags:
+      - deploy
+      - deploy-init
+      ansible.builtin.shell:
+        chdir: '{{ jaspar_base_dir }}/jaspar2020'
+        cmd: './deploy.sh -i -- -s {{ inventory_hostname }} -d {{ jaspar_data_dir }} -S'
+
+    # Time: ca 5 min
+    - name: Run unprivileged deploy scripts
+      tags:
+      - deploy
+      - deploy-user
+      ansible.builtin.shell:
+        chdir: '{{ jaspar_base_dir }}/jaspar2020'
+        cmd: './deploy.sh -u -- -s {{ inventory_hostname }} -d {{ jaspar_data_dir }} -S'
+
+    # Time: ca 2 min
+    - name: Run final privileged deploy scripts
+      tags:
+      - deploy
+      - deploy-final
+      ansible.builtin.shell:
+        chdir: '{{ jaspar_base_dir }}/jaspar2020'
+        cmd: './deploy.sh -f -- -s {{ inventory_hostname }} -d {{ jaspar_data_dir }} -S'
+
+    - name: Reload httpd/mod_wsgi
+      become: yes
+      ansible.builtin.systemd:
+        name: httpd.service
+        state: reloaded
+
