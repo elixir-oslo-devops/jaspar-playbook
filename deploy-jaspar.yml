@@ -4,15 +4,24 @@
 
   tasks:
     - name: Create a new keypair
+      tags: keypair
       openstack.cloud.keypair:
           state: present
           name: ansible-test-key
       register: keypair_result
 
+    - name: Make dir for private key
+      tags: keypair
+      ansible.builtin.file:
+        state: directory
+        path: .ssh
+        mode: 0700
+
     - name: Save private key file
+      tags: keypair
       ansible.builtin.copy:
         content: '{{ keypair_result.key.private_key }}'
-        dest: '{{ keypair_result.key.name }}.pem'
+        dest: '.ssh/{{ keypair_result.key.name }}.pem'
         mode: '0600'
         backup: yes
       when: keypair_result.changed and keypair_result.key is defined
@@ -32,3 +41,21 @@
     #       meta:
     #         hostname: test1
     #         group: uge_master
+
+    # Creates a new volume
+    - name: create 10g test volume
+      tags: volumes
+      openstack.cloud.volume:
+        state: present
+        size: 10
+        volume_type: mass-storage-ssd
+        display_name: ansible_test_volume
+        display_description: Volume for testing ansible
+
+    # Attaches a volume to a compute host
+    - name: attach volume to host
+      tags: volumes
+      openstack.cloud.server_volume:
+        state: present
+        server: ansible-test
+        volume: ansible_test_volume
