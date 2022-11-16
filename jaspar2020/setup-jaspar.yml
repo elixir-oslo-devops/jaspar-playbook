@@ -1,27 +1,87 @@
 ---
 - name: Set up JASPAR instance
   hosts: test.jaspar.uiocloud.no
+  any_errors_fatal: true
+
+  vars:
+    sef_httpd_content:
+    - 'jaspar-branding/'
+    - 'jaspar_tools/CSC/'
+    - 'jaspar_tools/stamp/'
+    - 'jaspar2020/secret.txt'
+    - 'jaspar2020/smtp_settings.txt'
+    - 'jaspar2020/downloads/'
+    - 'jaspar2020/jaspar/'
+    - 'jaspar2020/portal/'
+    - 'jaspar2020/profile-inference/'
+    - 'jaspar2020/restapi/'
+    - 'jaspar2020/static/'
+    - 'jaspar2020/templates/'
+    - 'jaspar2020/utils/'
+
+  pre_tasks:
+    - name: Install packages
+      become: yes
+      ansible.builtin.package:
+        state: present
+        name:
+          - git
+          - httpd
+          - certbot
+          - wget
+          - conda
 
   tasks:
+
+    # runs only once, per "creates" file existence
+    - name: Certbot account register
+      become: yes
+      ansible.builtin.command:
+        cmd: 'certbot -n register --agree-tos --email {{ certbot_admin_email }}'
+        creates: '/etc/letsencrypt/accounts/acme-v02.api.letsencrypt.org/directory/*/regr.json'
+
+    - name: Clone main repo
+      ansible.builtin.git:
+        repo: 'https://bitbucket.org/CBGR/jaspar2020.git'
+        dest: '{{ jaspar_base_dir }}/jaspar2020'
+        version: '20211214-buildah-deployment'
+        force: no
+        update: no
+
     - name: Clone branding repo
       ansible.builtin.git:
         repo: 'https://bitbucket.org/CBGR/jaspar-branding.git'
         dest: '{{ jaspar_base_dir }}/jaspar-branding'
 
-    - name: Allows apache to read files in git repo
+    # Loops through list of files/dirs to label, using regex to create regex.
+    # Takes a minute, probably due to checking the state of every item
+    - name: Set SELinux file context for httpd
+      tags: selinux
       become: yes
       community.general.sefcontext:
-        target: '{{ jaspar_base_dir }}/jaspar-branding(/.*)?'
-        setype: git_content_t
+        target: '{{ jaspar_base_dir }}/{{ item | regex_replace("/$", "(/.*)?") }}'
+        setype: httpd_sys_content_t
         state: present
-      register: branding_sefcontext
+      loop: '{{ sef_httpd_content }}'
+      register: sefcontext
 
-    - name: Apply SELinux file context
+    # Apply label to given file/dir only if changed in the above task. Yes it works.
+    - name: Apply SELinux file contexts
+      tags: selinux
       become: yes
-      ansible.builtin.command: 'restorecon -irv {{ jaspar_base_dir }}/jaspar-branding'
-      when: branding_sefcontext.changed
+      ansible.builtin.command: 'restorecon -ir {{ jaspar_base_dir }}/{{ item.item }}'
+      when: item.changed
+      loop: '{{ sefcontext.results }}'
 
-    # not tested
+    # builtin.get_url not appear to support recursive download
+    - name: Fetch JASPAR data
+      tags: fetch-data
+      ansible.builtin.command:
+        cmd: 'wget -r -nv -nc -nd -np -l 1 --no-check-certificate -P {{ jaspar_data_dir }} {{ jaspar_data_url }} '
+      register: wget_result
+      changed_when: '"Downloaded:" in wget_result.stderr'
+
+    # Installs system packages. Can easily be ansified.
     - name: Run initial privileged deploy scripts
       tags:
       - deploy
@@ -47,10 +107,27 @@
       ansible.builtin.shell:
         chdir: '{{ jaspar_base_dir }}/jaspar2020'
         cmd: './deploy.sh -f -- -s {{ inventory_hostname }} -d {{ jaspar_data_dir }} -S'
+      notify:
+        - Restart httpd
+        - Run tests
 
-    - name: Reload httpd/mod_wsgi
+  handlers:
+    - name: Restart httpd
       become: yes
       ansible.builtin.systemd:
         name: httpd.service
         state: reloaded
 
+    - name: Run website tests
+      listen: Run tests
+      tags: test
+      ansible.builtin.shell:
+        chdir: '{{ jaspar_base_dir }}/jaspar2020'
+        cmd: 'tests/test_website.py --url https://{{ inventory_hostname }}'
+
+    - name: Run API tests
+      listen: Run tests
+      tags: test
+      ansible.builtin.shell:
+        chdir: '{{ jaspar_base_dir }}/jaspar2020'
+        cmd: 'tests/test_api.py --url https://{{ inventory_hostname }}/api/v1'
