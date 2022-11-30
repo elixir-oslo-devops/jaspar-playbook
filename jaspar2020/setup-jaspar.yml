@@ -31,13 +31,22 @@
           - wget
           - conda
 
-  tasks:
+    - name: Make base directory
+      become: yes
+      ansible.builtin.file:
+        state: directory
+        path: '{{ jaspar_base_dir }}'
+        owner: '{{ ansible_user }}'
+        mode: 0755
+        recurse: no
+        #setype: 'httpd_sys_content_t'
 
+  tasks:
     # runs only once, per "creates" file existence
     - name: Certbot account register
       become: yes
       ansible.builtin.command:
-        cmd: 'certbot -n register --agree-tos --email {{ certbot_admin_email }}'
+        cmd: 'certbot -n register --agree-tos --email {{ admin_email }}'
         creates: '/etc/letsencrypt/accounts/acme-v02.api.letsencrypt.org/directory/*/regr.json'
 
     - name: Clone main repo
@@ -45,7 +54,6 @@
         repo: 'https://bitbucket.org/CBGR/jaspar2020.git'
         dest: '{{ jaspar_base_dir }}/jaspar2020'
         version: '20211214-buildah-deployment'
-        force: no
         update: no
 
     - name: Clone branding repo
@@ -77,9 +85,26 @@
     - name: Fetch JASPAR data
       tags: fetch-data
       ansible.builtin.command:
-        cmd: 'wget -r -nv -nc -nd -np -l 1 --no-check-certificate -P {{ jaspar_data_dir }} {{ jaspar_data_url }} '
+        cmd: 'wget -r -nv -nc -nd -np -l 1 --no-check-certificate -e robots=off -P {{ jaspar_data_dir }} {{ jaspar_data_url }} '
       register: wget_result
       changed_when: '"Downloaded:" in wget_result.stderr'
+
+    - name: SMTP settings file
+      ansible.builtin.template:
+        src: templates/smtp_settings.txt.j2
+        dest: '{{ jaspar_base_dir }}/jaspar2020/smtp_settings.txt'
+        #setype: httpd_sys_content_t
+
+    - name: Update settings
+      tags: settings
+      ansible.builtin.replace:
+        path: '{{ jaspar_base_dir }}/jaspar2020/jaspar/settings.py'
+        regexp: '^{{ item.setting }} = .+'
+        replace: '{{ item.setting }} = {{ item.value }}'
+      loop:
+        - { setting: 'SEND_TO_EMAIL', value: "'{{ admin_email }}'" }
+        - { setting: 'TIME_ZONE', value: "'CET'" }
+
 
     # Installs system packages. Can easily be ansified.
     - name: Run initial privileged deploy scripts
