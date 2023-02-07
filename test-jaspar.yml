@@ -1,0 +1,18 @@
+---
+- name: Set up JASPAR instance
+  hosts: test.jaspar.uiocloud.no
+  any_errors_fatal: true
+
+  vars:
+
+  pre_tasks:
+
+  roles:
+  - role: jaspar
+    vars:
+      jaspar_base_dir: /data/apps
+      admin_email: morj@ifi.uio.no
+
+  tasks:
+
+  handlers:
