@@ -1,0 +1,16 @@
+---
+
+sef_httpd_content:
+- 'jaspar-branding/'
+- 'jaspar_tools/CSC/'
+- 'jaspar_tools/stamp/'
+- 'jaspar2020/secret.txt'
+- 'jaspar2020/smtp_settings.txt'
+- 'jaspar2020/downloads/'
+- 'jaspar2020/jaspar/'
+- 'jaspar2020/portal/'
+- 'jaspar2020/profile-inference/'
+- 'jaspar2020/restapi/'
+- 'jaspar2020/static/'
+- 'jaspar2020/templates/'
+- 'jaspar2020/utils/'

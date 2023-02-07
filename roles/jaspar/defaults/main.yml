@@ -1,0 +1,7 @@
+jaspar_base_dir: /data/apps
+jaspar_data_dir: /data/JASPAR_RELEASES_2022-02-11
+jaspar_data_url: 'https://frigg.uio.no/ftp/mathelier/JASPAR_RELEASES_2022-02-11/'
+admin_email: morj@uio.no
+smtp_host: smtp.iuo.no
+smtp_user: nobody
+smtp_password: nothing
