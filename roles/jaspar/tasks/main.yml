@@ -8,6 +8,7 @@
       - git
       - httpd
       - certbot
+      - python3-certbot-apache
       - wget
       - conda
 
@@ -92,7 +93,7 @@
   - deploy-init
   ansible.builtin.shell:
     chdir: '{{ jaspar_base_dir }}/jaspar2020'
-    cmd: './deploy.sh -i -- -s {{ inventory_hostname }} -d {{ jaspar_data_dir }} -S'
+    cmd: './deploy.sh -i -- -s {{ jaspar_hostname }} -d {{ jaspar_data_dir }} -S'
 
 # Time: ca 5 min
 - name: Run unprivileged deploy scripts
@@ -101,7 +102,7 @@
   - deploy-user
   ansible.builtin.shell:
     chdir: '{{ jaspar_base_dir }}/jaspar2020'
-    cmd: './deploy.sh -u -- -s {{ inventory_hostname }} -d {{ jaspar_data_dir }} -S'
+    cmd: './deploy.sh -u -- -s {{ jaspar_hostname }} -d {{ jaspar_data_dir }} -S'
 
 # Time: ca 2 min
 - name: Run final privileged deploy scripts
@@ -110,7 +111,8 @@
   - deploy-final
   ansible.builtin.shell:
     chdir: '{{ jaspar_base_dir }}/jaspar2020'
-    cmd: './deploy.sh -f -- -s {{ inventory_hostname }} -d {{ jaspar_data_dir }} -S'
+    cmd: './deploy.sh -f -- -s {{ jaspar_hostname }} -d {{ jaspar_data_dir }} -S'
+    creates: '/etc/httpd/conf.d/{{ jaspar_hostname }}.conf'
   notify:
     - Restart httpd
     - Run tests
