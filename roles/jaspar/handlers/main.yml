@@ -1,7 +1,7 @@
 ---
 
 - name: Restart httpd
-  become: yes
+  become: true
   ansible.builtin.systemd:
     name: httpd.service
     state: reloaded
@@ -9,13 +9,13 @@
 - name: Run website tests
   listen: Run tests
   tags: test
-  ansible.builtin.shell:
+  ansible.builtin.command:
     chdir: '{{ jaspar_base_dir }}/jaspar2020'
     cmd: 'tests/test_website.py --url https://{{ inventory_hostname }}'
 
 - name: Run API tests
   listen: Run tests
   tags: test
-  ansible.builtin.shell:
+  ansible.builtin.command:
     chdir: '{{ jaspar_base_dir }}/jaspar2020'
     cmd: 'tests/test_api.py --url https://{{ inventory_hostname }}/api/v1'

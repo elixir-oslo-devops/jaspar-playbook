@@ -1,7 +1,7 @@
 ---
 
 - name: Install packages
-  become: yes
+  become: true
   ansible.builtin.package:
     state: present
     name:
@@ -13,40 +13,38 @@
       - conda
 
 - name: Make base directory
-  become: yes
+  become: true
   ansible.builtin.file:
     state: directory
     path: '{{ jaspar_base_dir }}'
     owner: '{{ ansible_user }}'
     mode: 0755
-    recurse: no
-    #setype: 'httpd_sys_content_t'
-
+    recurse: false
 
 - name: Certbot account register
-  become: yes
+  become: true
   ansible.builtin.command:
     cmd: 'certbot -n register --agree-tos --email {{ admin_email }}'
     creates: '/etc/letsencrypt/accounts/acme-v02.api.letsencrypt.org/directory/*/regr.json'
 
 - name: Clone main repo
   ansible.builtin.git:
-    repo: 'https://bitbucket.org/CBGR/jaspar2020.git'
+    repo: '{{ jaspar_app_git_repo }}'
     dest: '{{ jaspar_base_dir }}/jaspar2020'
-    version: '20211214-buildah-deployment'
-    update: no
+    version: '{{ jaspar_app_git_version }}'
+    update: false
 
 - name: Clone branding repo
   ansible.builtin.git:
-    repo: 'https://bitbucket.org/CBGR/jaspar-branding.git'
+    repo: '{{ jaspar_branding_git_repo }}'
     dest: '{{ jaspar_base_dir }}/jaspar-branding'
 
 # Loops through list of files/dirs to label, using regex to create regex.
 # Takes a minute, probably due to checking the state of every item
 - name: Set SELinux file context for httpd
   tags: selinux
-  become: yes
-  community.general.sefcontext:
+  become: true
+  community.general.system.sefcontext:
     target: '{{ jaspar_base_dir }}/{{ item | regex_replace("/$", "(/.*)?") }}'
     setype: httpd_sys_content_t
     state: present
@@ -56,7 +54,7 @@
 # Apply label to given file/dir only if changed in the above task. Yes it works.
 - name: Apply SELinux file contexts
   tags: selinux
-  become: yes
+  become: true
   ansible.builtin.command: 'restorecon -ir {{ jaspar_base_dir }}/{{ item.item }}'
   when: item.changed
   loop: '{{ sefcontext.results }}'
@@ -70,10 +68,12 @@
   changed_when: '"Downloaded:" in wget_result.stderr'
 
 - name: SMTP settings file
+  become: true
   ansible.builtin.template:
     src: templates/smtp_settings.txt.j2
     dest: '{{ jaspar_base_dir }}/jaspar2020/smtp_settings.txt'
-    #setype: httpd_sys_content_t
+    group: apache
+    mode: 0640
 
 - name: Update settings
   tags: settings
@@ -89,27 +89,28 @@
 # Installs system packages. Can easily be ansified.
 - name: Run initial privileged deploy scripts
   tags:
-  - deploy
-  - deploy-init
-  ansible.builtin.shell:
+    - deploy
+    - deploy-init
+  ansible.builtin.command:
     chdir: '{{ jaspar_base_dir }}/jaspar2020'
     cmd: './deploy.sh -i -- -s {{ jaspar_hostname }} -d {{ jaspar_data_dir }} -S'
 
 # Time: ca 5 min
 - name: Run unprivileged deploy scripts
   tags:
-  - deploy
-  - deploy-user
-  ansible.builtin.shell:
+    - deploy
+    - deploy-user
+  ansible.builtin.command:
     chdir: '{{ jaspar_base_dir }}/jaspar2020'
     cmd: './deploy.sh -u -- -s {{ jaspar_hostname }} -d {{ jaspar_data_dir }} -S'
+    creates: '{{ jaspar_base_dir }}/jaspar2020/JASPAR20??.sqlite3'
 
 # Time: ca 2 min
 - name: Run final privileged deploy scripts
   tags:
-  - deploy
-  - deploy-final
-  ansible.builtin.shell:
+    - deploy
+    - deploy-final
+  ansible.builtin.command:
     chdir: '{{ jaspar_base_dir }}/jaspar2020'
     cmd: './deploy.sh -f -- -s {{ jaspar_hostname }} -d {{ jaspar_data_dir }} -S'
     creates: '/etc/httpd/conf.d/{{ jaspar_hostname }}.conf'

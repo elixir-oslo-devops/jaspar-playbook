@@ -1,8 +1,12 @@
-jaspar_base_dir: /data/apps
-jaspar_data_dir: /data/JASPAR_RELEASES_2022-02-11
+jaspar_app: jaspar2020
+jaspar_app_git_repo: 'https://bitbucket.org/CBGR/{{ jaspar_app }}.git'
+jaspar_app_git_version: '20211214-buildah-deployment'
+jaspar_branding_git_repo: 'https://bitbucket.org/CBGR/jaspar-branding.git'
+jaspar_base_dir: /var/www/apps
+jaspar_data_dir: /var/tmp/jaspar-data
 jaspar_data_url: 'https://frigg.uio.no/ftp/mathelier/JASPAR_RELEASES_2022-02-11/'
 jaspar_hostname: '{{ inventory_hostname }}'
 admin_email: morj@uio.no
-smtp_host: smtp.iuo.no
+smtp_host: localhost
 smtp_user: nobody
-smtp_password: nothing
+smtp_password: ''
