@@ -6,7 +6,8 @@ jaspar_base_dir: /var/www/apps
 jaspar_data_dir: /var/tmp/jaspar-data
 jaspar_data_url: 'https://frigg.uio.no/ftp/mathelier/JASPAR_RELEASES_2022-02-11/'
 jaspar_hostname: '{{ inventory_hostname }}'
-admin_email: morj@uio.no
+jaspar_user: '{{ ansible_user }}'
+admin_email: somebody@uio.no
 smtp_host: localhost
 smtp_user: nobody
 smtp_password: ''

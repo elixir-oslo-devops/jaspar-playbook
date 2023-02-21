@@ -33,11 +33,13 @@
     dest: '{{ jaspar_base_dir }}/jaspar2020'
     version: '{{ jaspar_app_git_version }}'
     update: false
+    force: false
 
 - name: Clone branding repo
   ansible.builtin.git:
     repo: '{{ jaspar_branding_git_repo }}'
     dest: '{{ jaspar_base_dir }}/jaspar-branding'
+    version: master
 
 # Loops through list of files/dirs to label, using regex to create regex.
 # Takes a minute, probably due to checking the state of every item.
@@ -66,6 +68,7 @@
   ansible.builtin.template:
     src: templates/smtp_settings.txt.j2
     dest: '{{ jaspar_base_dir }}/jaspar2020/smtp_settings.txt'
+    owner: '{{ jaspar_user }}'
     group: apache
     mode: 0640
 
@@ -96,7 +99,7 @@
     - deploy-user
   ansible.builtin.command:
     cmd: '{{ jaspar_app_dir }}/deploy.sh -u -- -s {{ jaspar_hostname }} -d {{ jaspar_data_dir }} -S'
-    creates: '{{ jaspar_app_dir }}/JASPAR20??.sqlite3'
+    creates: '{{ jaspar_app_dir }}/deploy-logs/07-user-downloads.sh'
 
 # Time: ca 2 min
 - name: Run final privileged deploy scripts
@@ -105,7 +108,8 @@
     - deploy-final
   ansible.builtin.command:
     cmd: '{{ jaspar_app_dir }}/deploy.sh -f -- -s {{ jaspar_hostname }} -d {{ jaspar_data_dir }} -S'
-    creates: '/etc/httpd/conf.d/{{ jaspar_hostname }}.conf'
+    creates: '{{ jaspar_app_dir }}/deploy-logs/11-root-httpd.sh'
   notify:
+    - Restore SELinux file contexts
     - Restart httpd
     - Run tests

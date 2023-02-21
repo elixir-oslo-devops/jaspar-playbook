@@ -7,7 +7,7 @@ sef_httpd_content:
  - 'jaspar_tools/stamp/'
  - '{{ jaspar_app }}/secret.txt'
  - '{{ jaspar_app }}/smtp_settings.txt'
- - '{{ jaspar_app }}/downloads/'
+ - '{{ jaspar_app }}/download/'
  - '{{ jaspar_app }}/jaspar/'
  - '{{ jaspar_app }}/portal/'
  - '{{ jaspar_app }}/profile-inference/'

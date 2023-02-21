@@ -7,6 +7,13 @@
   when: item.changed
   loop: '{{ sefcontext.results }}'
 
+- name: Restore SELinux file contexts
+  tags: selinux
+  become: true
+  ansible.builtin.command: 'restorecon -r {{ jaspar_base_dir }}'
+#  ansible.builtin.command: 'restorecon -r {{ jaspar_base_dir }}/{{ item }}'
+#  loop: '{{ sef_httpd_content }}'
+
 - name: Restart httpd
   become: true
   ansible.builtin.systemd:
