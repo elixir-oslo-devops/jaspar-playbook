@@ -40,7 +40,8 @@
     dest: '{{ jaspar_base_dir }}/jaspar-branding'
 
 # Loops through list of files/dirs to label, using regex to create regex.
-# Takes a minute, probably due to checking the state of every item
+# Takes a minute, probably due to checking the state of every item.
+# Creates SSH connection for every iteration?
 - name: Set SELinux file context for httpd
   tags: selinux
   become: true
@@ -50,14 +51,7 @@
     state: present
   loop: '{{ sef_httpd_content }}'
   register: sefcontext
-
-# Apply label to given file/dir only if changed in the above task. Yes it works.
-- name: Apply SELinux file contexts
-  tags: selinux
-  become: true
-  ansible.builtin.command: 'restorecon -ir {{ jaspar_base_dir }}/{{ item.item }}'
-  when: item.changed
-  loop: '{{ sefcontext.results }}'
+  notify: Apply SELinux file contexts
 
 # builtin.get_url not appear to support recursive download
 - name: Fetch JASPAR data
@@ -92,8 +86,8 @@
     - deploy
     - deploy-init
   ansible.builtin.command:
-    chdir: '{{ jaspar_base_dir }}/jaspar2020'
-    cmd: './deploy.sh -i -- -s {{ jaspar_hostname }} -d {{ jaspar_data_dir }} -S'
+    cmd: '{{ jaspar_app_dir }}/deploy.sh -i -- -s {{ jaspar_hostname }} -d {{ jaspar_data_dir }} -S'
+    creates: '{{ jaspar_app_dir }}/deploy-logs/00-root-packages.sh'
 
 # Time: ca 5 min
 - name: Run unprivileged deploy scripts
@@ -101,9 +95,8 @@
     - deploy
     - deploy-user
   ansible.builtin.command:
-    chdir: '{{ jaspar_base_dir }}/jaspar2020'
-    cmd: './deploy.sh -u -- -s {{ jaspar_hostname }} -d {{ jaspar_data_dir }} -S'
-    creates: '{{ jaspar_base_dir }}/jaspar2020/JASPAR20??.sqlite3'
+    cmd: '{{ jaspar_app_dir }}/deploy.sh -u -- -s {{ jaspar_hostname }} -d {{ jaspar_data_dir }} -S'
+    creates: '{{ jaspar_app_dir }}/JASPAR20??.sqlite3'
 
 # Time: ca 2 min
 - name: Run final privileged deploy scripts
@@ -111,8 +104,7 @@
     - deploy
     - deploy-final
   ansible.builtin.command:
-    chdir: '{{ jaspar_base_dir }}/jaspar2020'
-    cmd: './deploy.sh -f -- -s {{ jaspar_hostname }} -d {{ jaspar_data_dir }} -S'
+    cmd: '{{ jaspar_app_dir }}/deploy.sh -f -- -s {{ jaspar_hostname }} -d {{ jaspar_data_dir }} -S'
     creates: '/etc/httpd/conf.d/{{ jaspar_hostname }}.conf'
   notify:
     - Restart httpd

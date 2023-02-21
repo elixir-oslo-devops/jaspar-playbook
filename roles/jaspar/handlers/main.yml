@@ -1,4 +1,11 @@
 ---
+# Apply label to given file/dir only if changed in the above task.
+- name: Apply SELinux file contexts
+  tags: selinux
+  become: true
+  ansible.builtin.command: 'restorecon -ir {{ jaspar_base_dir }}/{{ item.item }}'
+  when: item.changed
+  loop: '{{ sefcontext.results }}'
 
 - name: Restart httpd
   become: true

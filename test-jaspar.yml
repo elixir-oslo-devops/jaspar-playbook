@@ -8,10 +8,7 @@
   pre_tasks:
 
   roles:
-  - role: jaspar
-    vars:
-      jaspar_base_dir: /data/apps
-      admin_email: morj@ifi.uio.no
+    - jaspar
 
   tasks:
 
