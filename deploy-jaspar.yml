@@ -20,17 +20,17 @@
     - name: Save private key file
       tags: keypair
       ansible.builtin.copy:
-        content: '{{ keypair_result.key.private_key }}'
-        dest: '.ssh/{{ keypair_result.key.name }}.pem'
+        content: '{{ keypair_result.keypair.private_key }}'
+        dest: '.ssh/{{ keypair_result.keypair.name }}.pem'
         mode: '0600'
         backup: yes
-      when: keypair_result.changed and keypair_result.key is defined
+      when: keypair_result.changed and keypair_result.keypair is defined
 
     - name: Create a new instance and attaches to a network # and passes metadata to the instance
       openstack.cloud.server:
            state: present
            name: ansible-test
-           image: UiO Managed RHEL 8
+           image: GOLD Rocky Linux 8
            key_name: ansible-test-key
            timeout: 200
            flavor: m1.small
@@ -48,7 +48,7 @@
       openstack.cloud.volume:
         state: present
         size: 10
-        volume_type: mass-storage-ssd
+        volume_type: mass-storage-default
         display_name: ansible_test_volume
         display_description: Volume for testing ansible
 
