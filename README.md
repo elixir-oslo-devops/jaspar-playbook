@@ -40,6 +40,10 @@ export OS_NO_CACHE=1
 
 `ansible-galaxy install -r requirements.yml`
 
+## Updating the version of a collection
+
+E.g.: `ansible-galaxy collection install openstack.cloud --upgrade`
+
 ## Running playbook
 
 ```
