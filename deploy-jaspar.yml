@@ -41,6 +41,7 @@
     #       meta:
     #         hostname: test1
     #         group: uge_master
+      register: instance_result
 
     # Creates a new volume
     - name: create 10g test volume
@@ -59,3 +60,55 @@
         state: present
         server: ansible-test
         volume: ansible_test_volume
+
+    - name: Add CentOS Instance to Inventory
+      add_host: name=test-ansible
+                ansible_ssh_host={{ instance_result.server.addresses.dualStack[0].addr }}
+                ansible_ssh_private_key_file=.ssh/ansible-test-key.pem
+
+- hosts: test-ansible
+  remote_user: rocky
+  become: true
+  tasks:
+    - name: Install lvm2 dependency
+      package:
+        name: lvm2
+        state: present
+
+    - name: create partition
+      parted:
+        device: /dev/sdb
+        number: 1
+        flags: [ lvm ]
+        state: present
+        part_end: 10GB
+
+    - name: task for creating volume group
+      lvg:
+        vg: sample-vg
+        pvs: /dev/sdb1
+
+    - name: task for creating logical volume
+      lvol:
+        vg: sample-vg
+        lv: sample-lv
+        size: 100%FREE
+        shrink: false
+
+    - name: Create directory data1 if does not exist
+      file:
+        path: /data
+        state: directory
+        mode: '0755'
+
+    - name: format the xfs filesystem
+      filesystem:
+        fstype: xfs
+        dev: /dev/sample-vg/sample-lv
+
+    - name: mount the lv on /data1
+      mount:
+        path: /data
+        src: /dev/sample-vg/sample-lv
+        fstype: xfs
+        state: mounted
