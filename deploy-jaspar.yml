@@ -2,12 +2,17 @@
 - name: Deploy test server in NREC
   hosts: localhost
 
+  vars:
+    server_name: ansible-test2
+    keypair_name: '{{ server_name }}-key'
+    volume_name: '{{ server_name }}-volume'
+
   tasks:
     - name: Create a new keypair
       tags: keypair
       openstack.cloud.keypair:
           state: present
-          name: ansible-test-key
+          name: '{{ keypair_name }}'
       register: keypair_result
 
     - name: Make dir for private key
@@ -27,11 +32,12 @@
       when: keypair_result.changed and keypair_result.keypair is defined
 
     - name: Create a new instance and attaches to a network # and passes metadata to the instance
+      tags: instance
       openstack.cloud.server:
            state: present
-           name: ansible-test
+           name: '{{ server_name }}'
            image: GOLD Rocky Linux 8
-           key_name: ansible-test-key
+           key_name: '{{ keypair_name }}'
            timeout: 200
            flavor: m1.small
            nics:
@@ -50,7 +56,7 @@
         state: present
         size: 10
         volume_type: mass-storage-default
-        display_name: ansible_test_volume
+        display_name: '{{ volume_name }}'
         display_description: Volume for testing ansible
 
     # Attaches a volume to a compute host
@@ -58,15 +64,17 @@
       tags: volumes
       openstack.cloud.server_volume:
         state: present
-        server: ansible-test
-        volume: ansible_test_volume
+        server: '{{ server_name }}'
+        volume: '{{ volume_name }}'
 
-    - name: Add CentOS Instance to Inventory
-      add_host: name=test-ansible
-                ansible_ssh_host={{ instance_result.server.addresses.dualStack[0].addr }}
-                ansible_ssh_private_key_file=.ssh/ansible-test-key.pem
+    - name: Add Instance to Inventory
+      tags: instance
+      add_host:
+        name: nrec_server_name
+        ansible_ssh_host: '{{ instance_result.server.addresses.dualStack | selectattr("version", "eq", 4) | map(attribute="addr") | first }}'
+        ansible_ssh_private_key_file: '.ssh/{{ keypair_name }}.pem'
 
-- hosts: test-ansible
+- hosts: nrec_server_name
   remote_user: rocky
   become: true
   tasks:
@@ -75,18 +83,19 @@
         name: lvm2
         state: present
 
-    - name: create partition
-      parted:
-        device: /dev/sdb
-        number: 1
-        flags: [ lvm ]
-        state: present
-        part_end: 10GB
+# not needed because lvm can use whole device
+#    - name: create partition
+#      parted:
+#        device: /dev/sdb
+#        number: 1
+#        flags: [ lvm ]
+#        state: present
+#        part_end: 10GB
 
     - name: task for creating volume group
       lvg:
         vg: sample-vg
-        pvs: /dev/sdb1
+        pvs: /dev/sdb
 
     - name: task for creating logical volume
       lvol:
