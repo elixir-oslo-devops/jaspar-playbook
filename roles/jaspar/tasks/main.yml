@@ -47,7 +47,7 @@
 - name: Set SELinux file context for httpd
   tags: selinux
   become: true
-  community.general.system.sefcontext:
+  community.general.sefcontext:
     target: '{{ jaspar_base_dir }}/{{ item | regex_replace("/$", "(/.*)?") }}'
     setype: httpd_sys_content_t
     state: present
