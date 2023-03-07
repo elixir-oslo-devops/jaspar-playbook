@@ -18,7 +18,7 @@
     state: directory
     path: '{{ jaspar_base_dir }}'
     owner: '{{ ansible_user }}'
-    mode: 0755
+    mode: '0755'
     recurse: false
 
 - name: Certbot account register
@@ -70,7 +70,7 @@
     dest: '{{ jaspar_base_dir }}/jaspar2020/smtp_settings.txt'
     owner: '{{ jaspar_user }}'
     group: apache
-    mode: 0640
+    mode: '0640'
 
 - name: Update settings
   tags: settings

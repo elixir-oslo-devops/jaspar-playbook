@@ -3,13 +3,5 @@
   hosts: test.jaspar.uiocloud.no
   any_errors_fatal: true
 
-  vars:
-
-  pre_tasks:
-
   roles:
     - jaspar
-
-  tasks:
-
-  handlers:
