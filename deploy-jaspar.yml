@@ -31,6 +31,33 @@
         backup: yes
       when: keypair_result.changed and keypair_result.keypair is defined
 
+    # Create a security group
+    - name: Create a new security group
+      tags: instance
+      openstack.cloud.security_group:
+        state: present
+        name: jaspar
+      register: security_result
+
+    # Create a TCP rule covering current IP
+    - name: Create security rule to TCP out instance
+      tags: instance
+      openstack.cloud.security_group_rule:
+        security_group: '{{ security_result.security_group.id }}'
+        protocol: any
+        ethertype: IPv4
+        direction: egress
+        remote_ip_prefix: 0.0.0.0/0
+
+    # Create a TCP rule covering current IP
+    - name: Create security rule to TCP access instance
+      tags: instance
+      openstack.cloud.security_group_rule:
+        security_group: '{{ security_result.security_group.id }}'
+        protocol: tcp
+        ethertype: IPv4
+        remote_ip_prefix: '{{ ansible_default_ipv4.address }}'
+
     - name: Create a new instance and attaches to a network # and passes metadata to the instance
       tags: instance
       openstack.cloud.server:
@@ -43,7 +70,8 @@
            nics:
              - net-name: dualStack
            security_groups:
-             - default
+#             - default
+             - '{{ security_result.security_group.id }}'
     #       meta:
     #         hostname: test1
     #         group: uge_master
