@@ -145,3 +145,5 @@ cython_debug/
 ## Repo specific
 .idea
 keystone_rc.sh
+/Dockerfile
+/.ssh/
