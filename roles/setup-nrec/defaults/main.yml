@@ -15,3 +15,4 @@ ipv4_list:
   - 193.157.244.10 # Nemko building
   - 129.240.0.0/16 # All UIO
   - 84.210.213.155 # Perso IP adress
+  - 158.39.48.41 # Jenkins IP adress
