@@ -102,3 +102,9 @@
     name: nrec_server_name
     ansible_ssh_host: '{{ instance_result.server.addresses.dualStack | selectattr("version", "eq", 4) | map(attribute="addr") | first }}'
     ansible_ssh_private_key_file: '.ssh/{{ keypair_name }}.pem'
+
+
+- name: Wait 300 seconds, but only start checking after 60 seconds
+  wait_for_connection:
+    delay: 60
+    timeout: 300
