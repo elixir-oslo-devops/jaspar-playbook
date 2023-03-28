@@ -1,5 +1,10 @@
 ---
 # tasks file for setup-volume
+- name: Wait 300 seconds, but only start checking after 60 seconds
+  wait_for_connection:
+    delay: 60
+    timeout: 300
+
 - name: Install lvm2 dependency
   package:
     name: lvm2

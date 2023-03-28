@@ -31,7 +31,7 @@
     name: '{{ server_name }}'
   register: security_result
 
-# Create a TCP rule covering current IP
+# Create a TCP rule covering all IPv4
 - name: Create security rule to TCP out instance
   tags: instance
   openstack.cloud.security_group_rule:
@@ -40,6 +40,16 @@
     ethertype: IPv4
     direction: egress
     remote_ip_prefix: 0.0.0.0/0
+
+# Create a TCP rule covering all IPv6
+- name: Create security rule to TCP out instance
+  tags: instance
+  openstack.cloud.security_group_rule:
+    security_group: '{{ security_result.security_group.id }}'
+    protocol: any
+    ethertype: IPv6
+    direction: egress
+    remote_ip_prefix: ::/0
 
 # Create a TCP rule covering current IP
 - name: Create security rule to TCP access instance
