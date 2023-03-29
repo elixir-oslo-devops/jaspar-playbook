@@ -29,13 +29,13 @@
   openstack.cloud.security_group:
     state: present
     name: '{{ server_name }}'
-  register: security_result
+#  register: security_result
 
 # Create a TCP rule covering all IPv4
 - name: Create security rule to TCP out instance
   tags: instance
   openstack.cloud.security_group_rule:
-    security_group: '{{ security_result.security_group.id }}'
+    security_group: '{{ server_name }}'
     protocol: any
     ethertype: IPv4
     direction: egress
@@ -45,7 +45,7 @@
 - name: Create security rule to TCP out instance
   tags: instance
   openstack.cloud.security_group_rule:
-    security_group: '{{ security_result.security_group.id }}'
+    security_group: '{{ server_name }}'
     protocol: any
     ethertype: IPv6
     direction: egress
@@ -103,7 +103,7 @@
     ansible_ssh_host: '{{ instance_result.server.addresses.dualStack | selectattr("version", "eq", 4) | map(attribute="addr") | first }}'
     ansible_ssh_private_key_file: '.ssh/{{ keypair_name }}.pem'
 
-
+# Wait for server to finish setting up
 - name: Wait 300 seconds, but only start checking after 60 seconds
   wait_for_connection:
     delay: 60
