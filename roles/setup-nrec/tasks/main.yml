@@ -72,7 +72,7 @@
          - net-name: dualStack
        security_groups:
 #             - default
-         - '{{ security_result.security_group.id }}'
+         - '{{ server_name }}'
 #       meta:
 #         hostname: test1
 #         group: uge_master
