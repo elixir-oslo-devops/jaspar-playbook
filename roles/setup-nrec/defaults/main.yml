@@ -1,0 +1,19 @@
+---
+# defaults file for setup-nrec
+server_name: ansible-test
+security_group_name: '{{ server_name }}'
+image:
+  rocky:
+    gold_name: GOLD Rocky Linux 8
+  cloud-user:
+    gold_name: UiO Managed RHEL 8
+  ubuntu:
+    gold_name: Ubuntu 22.04 LTS
+keypair_name: '{{ server_name }}-key'
+volume_name: '{{ server_name }}-volume'
+volume_size: 10
+ipv4_list:
+  - 129.240.0.0/16 # All UIO
+  - 84.210.213.155 # Perso IP adress
+  - 158.39.48.41 # Jenkins IP adress
+  - 193.157.128.0/17 # UiO VPN/Eduroam

@@ -1,0 +1,12 @@
+# tasks file for setup-nrec
+- hosts: localhost
+  roles:
+    - setup-nrec
+
+- hosts: nrec_server_name
+  remote_user: rocky
+  become: true
+  roles:
+    - setup-volume
+
+

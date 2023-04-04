@@ -1,0 +1,110 @@
+---
+# tasks file for setup-nrec
+- name: Create a new keypair
+  tags: keypair
+  openstack.cloud.keypair:
+      state: present
+      name: '{{ keypair_name }}'
+  register: keypair_result
+
+- name: Make dir for private key
+  tags: keypair
+  ansible.builtin.file:
+    state: directory
+    path: .ssh
+    mode: 0700
+
+- name: Save private key file
+  tags: keypair
+  ansible.builtin.copy:
+    content: '{{ keypair_result.keypair.private_key }}'
+    dest: '.ssh/{{ keypair_result.keypair.name }}.pem'
+    mode: '0600'
+    backup: yes
+  when: keypair_result.changed and keypair_result.keypair is defined
+
+# Create a security group
+- name: Create a new security group
+  tags: instance
+  openstack.cloud.security_group:
+    state: present
+    name: '{{ security_group_name }}'
+#  register: security_result
+
+# Create a TCP rule covering all IPv4
+- name: Create security rule to TCP out instance
+  tags: instance
+  openstack.cloud.security_group_rule:
+    security_group: '{{ security_group_name }}'
+    protocol: any
+    ethertype: IPv4
+    direction: egress
+    remote_ip_prefix: 0.0.0.0/0
+
+# Create a TCP rule covering all IPv6
+- name: Create security rule to TCP out instance
+  tags: instance
+  openstack.cloud.security_group_rule:
+    security_group: '{{ security_group_name }}'
+    protocol: any
+    ethertype: IPv6
+    direction: egress
+    remote_ip_prefix: ::/0
+
+# Create a TCP rule covering current IP
+- name: Create security rule to TCP access instance
+  tags: instance
+  include_tasks: add_ipv4_rule.yml
+  with_items: '{{ ipv4_list }}'
+  loop_control:
+    loop_var: ipv4_adress
+
+- name: Create a new instance and attaches to a network # and passes metadata to the instance
+  tags: instance
+  openstack.cloud.server:
+       state: present
+       name: '{{ server_name }}'
+       image: '{{ image.rocky.gold_name }}'
+       key_name: '{{ keypair_name }}'
+       timeout: 200
+       flavor: m1.small
+       nics:
+         - net-name: dualStack
+       security_groups:
+#             - default
+         - '{{ security_group_name }}'
+#       meta:
+#         hostname: test1
+#         group: uge_master
+  register: instance_result
+
+# Creates a new volume
+- name: create 10g test volume
+  tags: volumes
+  openstack.cloud.volume:
+    state: present
+    size: '{{ volume_size }}'
+    volume_type: mass-storage-default
+    display_name: '{{ volume_name }}'
+    display_description: Volume for testing ansible
+
+# Attaches a volume to a compute host
+- name: attach volume to host
+  tags: volumes
+  openstack.cloud.server_volume:
+    state: present
+    server: '{{ server_name }}'
+    volume: '{{ volume_name }}'
+
+- name: Add Instance to Inventory
+  tags: instance
+  add_host:
+    name: nrec_server_name
+    ansible_ssh_host: '{{ instance_result.server.addresses.dualStack | selectattr("version", "eq", 4) | map(attribute="addr") | first }}'
+    ansible_ssh_private_key_file: '.ssh/{{ keypair_name }}.pem'
+
+# Wait for server to finish setting up
+- name: Wait 300 seconds, but only start checking after 60 seconds
+  wait_for_connection:
+    delay: 60
+    timeout: 300
