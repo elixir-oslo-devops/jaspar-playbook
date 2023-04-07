@@ -79,7 +79,7 @@
   register: instance_result
 
 # Creates a new volume
-- name: create 10g test volume
+- name: 'create {{ volume_size }} test volume'
   tags: volumes
   openstack.cloud.volume:
     state: present
@@ -96,12 +96,26 @@
     server: '{{ server_name }}'
     volume: '{{ volume_name }}'
 
-- name: Add Instance to Inventory
-  tags: instance
-  add_host:
-    name: nrec_server_name
-    ansible_ssh_host: '{{ instance_result.server.addresses.dualStack | selectattr("version", "eq", 4) | map(attribute="addr") | first }}'
-    ansible_ssh_private_key_file: '.ssh/{{ keypair_name }}.pem'
+#- name: Add Instance to Inventory
+#  tags: instance
+#  add_host:
+#    name: nrec_server_name
+#    ansible_ssh_host: '{{ instance_result.server.addresses.dualStack | selectattr("version", "eq", 4) | map(attribute="addr") | first }}'
+#    ansible_ssh_private_key_file: '.ssh/{{ keypair_name }}.pem'
+
+
+
+- name: Add server IP to DNS zone
+  openstack.cloud.recordset:
+    state: present
+    zone: '{{ item.value.ansible_dns }}'
+    name: '{{ item.key }}.'
+    recordset_type: "a"
+    records: ['{{ instance_result.server.addresses.dualStack | selectattr("version", "eq", 4) | map(attribute="addr") | first }}']
+    description: test recordset
+    ttl: 3600
+  with_dict: '{{ hostvars }}'
+
 
 # Wait for server to finish setting up
 - name: Wait 300 seconds, but only start checking after 60 seconds

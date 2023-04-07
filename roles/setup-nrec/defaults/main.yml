@@ -11,7 +11,7 @@ image:
     gold_name: Ubuntu 22.04 LTS
 keypair_name: '{{ server_name }}-key'
 volume_name: '{{ server_name }}-volume'
-volume_size: 10
+volume_size: 60
 ipv4_list:
   - 129.240.0.0/16 # All UIO
   - 84.210.213.155 # Perso IP adress
