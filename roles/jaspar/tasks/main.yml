@@ -659,17 +659,50 @@
 
 
 #==============================================
-# 05-user-archetypes.sh
+# 05-user-changelog.sh
 #==============================================
 
+- name: List Jaspar changelog
+  tags: jaspar-changelog
+  ansible.builtin.find:
+    paths: '{{ jaspar_data_dir }}'
+    file_type: file
+    patterns: 'changelog_*.html'
+    exclude: '*revised*'
+  register: jaspar_changelog
 
-#- name: Create archetype file
-#  tags: setting
-#  ansible.builtin.copy:
-#    content: '{{ jaspar_data_dir }}'
-#    dest: '{{ jaspar2020_dir }}/deploy/work/data.txt'
-#    owner: '{{ ansible_user }}'
-#    mode: '0644'
+- name: List Jaspar changelog revised
+  tags: jaspar-changelog
+  ansible.builtin.find:
+    paths: '{{ jaspar_data_dir }}'
+    file_type: file
+    patterns: 'changelog_*_revised.html'
+  register: jaspar_changelog_revised
+
+- name: Setting host facts using complex arguments
+  tags: jaspar-changelog
+  ansible.builtin.set_fact:
+    changelog_overriden_list: '{{ jaspar_changelog_revised.files | map(attribute="path") | map("regex_replace", "_revised\.html$", ".html") | list }}'
+
+
+
+- name: Copy unrevised changelog
+  tags: jaspar-changelog
+  ansible.builtin.copy:
+    src: '{{ item.path }}'
+    dest: '{{ jaspar2020_dir }}/portal/templates/portal/changelogs/'
+    remote_src: true
+  when: item.path not in changelog_overriden_list
+  loop: '{{ jaspar_changelog.files }}'
+
+- name: Copy revised changelog
+  tags: jaspar-changelog
+  ansible.builtin.copy:
+    src: '{{ item.path }}'
+    dest: '{{ jaspar2020_dir }}/portal/templates/portal/changelogs/{{ item.path | basename | regex_replace("_revised\.html$", ".html")}}'
+    remote_src: true
+  loop: '{{ jaspar_changelog_revised.files }}'
+
 
 
 
