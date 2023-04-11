@@ -1,6 +1,7 @@
 ---
 - name: Install EPEL repo
   tags: server-install
+  become: true
   ansible.builtin.dnf:
     name: epel-release
     state: latest
@@ -94,6 +95,7 @@
 # builtin.get_url not appear to support recursive download
 - name: Fetch JASPAR data
   tags: fetch-data
+  become: true
   ansible.builtin.command:
     cmd: 'wget -r -nv -nc -nd -np -l 1 --no-check-certificate -e robots=off -P {{ jaspar_data_dir }} {{ jaspar_data_url }} '
   register: wget_result
@@ -192,6 +194,7 @@
 
 - name: Set labels for SELinux
   tags: selinux
+  become: true
   community.general.sefcontext:
     target: '{{ jaspar_bin_dir }}(/.*)?'
     setype: bin_t
@@ -200,6 +203,7 @@
 
 - name: Apply the labelling for SELinux
   tags: selinux
+  become: true
   ansible.builtin.command:
      cmd: 'restorecon -R {{ jaspar_bin_dir}}'
 
@@ -278,6 +282,7 @@
     cmd: 'conda create -c defaults -c conda-forge -c bioconda -y -p {{ jaspar2020_dir }}/lib/usr/local blast hmmer'
 
 - name: Add another bin dir to system-wide $PATH.
+  become: true
   copy:
     dest: /etc/profile.d/custom-path.sh
     content: 'PATH=$PATH:{{ jaspar2020_dir }}/lib/usr/local/bin'
@@ -287,6 +292,7 @@
 
 - name: Install python package
   tags: server-install
+  become: true
   ansible.builtin.pip:
     name:
       - bootstrap-admin
@@ -571,7 +577,7 @@
     owner: '{{ ansible_user }}'
     mode: '0755'
 
-- name: List Jaspar archetype
+- name: List Jaspar previous archetype
   tags: jaspar-archetype
   become: false
   ansible.builtin.find:
@@ -581,85 +587,95 @@
   register: jaspar_archetype_directory
 
 
-- debug:
-    msg: '{{ item.path }}.backup-{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}'
-  loop: '{{ jaspar_archetype_directory.files }}'
 
 - name: Backup previous archetype
   tags: jaspar-archetype
   become: false
   ansible.builtin.copy:
     src: '{{ item.path }}/'
-    dest: '{{ item.path }}.backup-{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}/'
+    dest: '{{ item.path }}.backup-{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}'
     remote_src: true
     owner:  '{{ ansible_user }}'
     force: false
   loop: '{{ jaspar_archetype_directory.files }}'
 
-#- name: Remove previous archetype version
-#  ansible.builtin.file:
-#    path: '{{ item.path }}'
-#    state: absent
-#  loop: '{{ jaspar_archetype_directory.files }}'
+- name: Remove previous archetype version
+  tags: jaspar-archetype
+  ansible.builtin.file:
+    path: '{{ item.path }}'
+    state: absent
+  loop: '{{ jaspar_archetype_directory.files }}'
 
-#- name: List Jaspar database
-#  become: false
-#  ansible.builtin.find:
-#    paths: '{{jaspar_data_dir}}/'
-##    patterns: 'JASPAR*.sqlite3'
-#    patterns: 'jaspar-archetypes-[0-9]{4}\.tar\.gz'
-#    use_regex: true
-#  register: jaspar_database_list
-#
-#- debug:
-#    msg: '{{ jaspar_database_list.files }}'
+- name: List Jaspar archetype
+  tags: jaspar-archetype
+  become: false
+  ansible.builtin.find:
+    paths: '{{jaspar_data_dir}}/'
+    patterns: 'jaspar-archetypes-[0-9]{4}\.tar\.gz'
+    use_regex: true
+  register: jaspar_database_list
 
 
+- name: Make archive archetype directory
+  tags: jaspar-archetype
+  become: true
+  ansible.builtin.file:
+    state: directory
+    path: '{{ jaspar2020_dir }}/static/archetypes/{{ item.path | basename | split(".") | first |regex_replace("\.[^.]*$", "") | regex_replace("^[a-zA-z\-\.]+") }}'
+    owner: '{{ ansible_user }}'
+    mode: '0755'
+  loop: '{{ jaspar_database_list.files }}'
 
-#- name: Backup previous archetype
+
+- name: Extract archetype
+  tags: jaspar-archetype
+  ansible.builtin.unarchive:
+    src: '{{ item.path }}'
+    dest: '{{ jaspar2020_dir }}/static/archetypes/{{ item.path | basename | split(".") | first |regex_replace("\.[^.]*$", "") | regex_replace("^[a-zA-z\-\.]+") }}'
+    owner:  '{{ ansible_user }}'
+    remote_src: yes
+    extra_opts:
+      - '--strip-components=1'
+  loop: '{{ jaspar_database_list.files }}'
+
+
+- name: List Jaspar current archetype
+  tags: jaspar-archetype
+  become: false
+  ansible.builtin.find:
+    paths: '{{ jaspar2020_dir }}/static/archetypes/'
+    file_type: directory
+    exclude: '*backup*'
+  register: jaspar_current_archetype_directory
+
+
+- name: Make a record of available archetypes data for releases
+  tags: jaspar-archetype
+  ansible.builtin.lineinfile:
+    path: '{{ jaspar2020_dir }}/deploy/work/archetypes_releases.txt'
+    line: '{{ item.path  | basename | split(".") | first |regex_replace("\.[^.]*$", "") | regex_replace("^[a-zA-z\-\.]+")}}'
+    create: true
+  loop: '{{ jaspar_current_archetype_directory.files }}'
+
+
+#==============================================
+# 05-user-archetypes.sh
+#==============================================
+
+
+#- name: Create archetype file
+#  tags: setting
 #  ansible.builtin.copy:
-#    src: '{{ item.path }}'
-#    dest: '{{ item.path }}.backup-{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}'
-#    remote_src: true
-#    owner:  '{{ ansible_user }}'
-#  loop: '{{ jaspar_archetype_directory.files }}'
-#
-#- name: Recursively remove previous archetype version
-#  ansible.builtin.file:
-#    path: '{{ item.path }}'
-#    state: absent
-#  loop: '{{ jaspar_archetype_directory.files }}'
-#
-#- name: List Jaspar database
-#  become: false
-#  ansible.builtin.find:
-#    paths: '{{jaspar_data_dir}}/'
-##    patterns: 'JASPAR*.sqlite3'
-#    patterns: 'jaspar-archetypes-[0-9]{4}*tar.gz'
-#  register: jaspar_database_list
-#
-#- name: Unpack archetypes data.
-#  debug:
-##    msg: '{{jaspar_data_dir}}/jaspar-archetypes-{{ item.path | basename | regex_replace("\.[^.]*$", "") | regex_replace("^[a-zA-z\-]+") }}.tar.gz'
-#    msg: '{{ item.path  }}'
-#  loop: '{{ jaspar_database_list.files }}'
-#
-#- name: Make archetype directories
-#  become: true
-#  ansible.builtin.file:
-#    state: directory
-#    path: '{{ jaspar2020_dir }}/static/archetypes/{{ item.path | basename | regex_replace("\.[^.]*$", "") | regex_replace("^[a-zA-z\-]+") }}'
+#    content: '{{ jaspar_data_dir }}'
+#    dest: '{{ jaspar2020_dir }}/deploy/work/data.txt'
 #    owner: '{{ ansible_user }}'
-#    mode: '0755'
-#  loop: '{{ jaspar_database_list.files }}'
-#
-#- name: Unarchive archetype
-#  ansible.builtin.unarchive:
-#    src: '{{jaspar_data_dir}}/jaspar-archetypes-{{ item.path | basename | regex_replace("\.[^.]*$", "") | regex_replace("^[a-zA-z\-]+") }}.tar.gz'
-#    dest: '{{ jaspar2020_dir }}/static/archetypes/{{ item.path | basename | regex_replace("\.[^.]*$", "") | regex_replace("^[a-zA-z\-]+") }}/'
-#    remote_src: yes
-#  loop: '{{ jaspar_database_list.files }}'
-#  when:
+#    mode: '0644'
+
+
+
+
+
+
 
 
 ## Installs system packages. Can easily be ansified.

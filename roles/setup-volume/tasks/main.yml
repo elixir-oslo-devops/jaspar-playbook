@@ -2,18 +2,21 @@
 # tasks file for setup-volume
 - name: Install lvm2 dependency
   tags: volumes
+  become: true
   package:
     name: lvm2
     state: present
 
 - name: task for creating volume group
   tags: volumes
+  become: true
   lvg:
     vg: sample-vg
     pvs: /dev/sdb
 
 - name: task for creating logical volume
   tags: volumes
+  become: true
   lvol:
     vg: sample-vg
     lv: sample-lv
@@ -22,6 +25,7 @@
 
 - name: Create directory data1 if does not exist
   tags: volumes
+  become: true
   file:
     path: /data
     state: directory
@@ -29,12 +33,14 @@
 
 - name: format the xfs filesystem
   tags: volumes
+  become: true
   filesystem:
     fstype: xfs
     dev: /dev/sample-vg/sample-lv
 
 - name: mount the lv on /data1
   tags: volumes
+  become: true
   mount:
     path: /data
     src: /dev/sample-vg/sample-lv
