@@ -63,10 +63,11 @@
 - name: Create security rule to TCP access instance
   tags: instance
   openstack.cloud.security_group_rule:
-    security_group: '{{ item }}'
+    security_group: '{{ security_group_name }}'
     protocol: tcp
     ethertype: IPv4
-  loop: ipv4_list
+    remote_ip_prefix: '{{ item }}'
+  loop: '{{ ipv4_list }}'
 
 - name: Create a new instance and attaches to a network # and passes metadata to the instance
   tags: instance
