@@ -685,7 +685,6 @@
     changelog_overriden_list: '{{ jaspar_changelog_revised.files | map(attribute="path") | map("regex_replace", "_revised\.html$", ".html") | list }}'
 
 
-
 - name: Copy unrevised changelog
   tags: jaspar-changelog
   ansible.builtin.copy:
@@ -703,11 +702,21 @@
     remote_src: true
   loop: '{{ jaspar_changelog_revised.files }}'
 
+- name: List Jaspar changelog manifest
+  tags: jaspar-changelog
+  ansible.builtin.find:
+    paths: '{{ jaspar2020_dir }}/portal/templates/portal/changelogs/'
+    file_type: file
+  register: jaspar_changelog_manifest
 
 
-
-
-
+- name: Regenerate the changelog manifest
+  tags: jaspar-changelog
+  ansible.builtin.lineinfile:
+    path: '{{ jaspar2020_dir }}/portal/templates/portal/changelogs.html'
+    line: '{% raw %}{%{% endraw %} include "portal/changelogs/{{ item }}" {% raw %}%}{% endraw %}'
+    create: true
+  loop: '{{ jaspar_changelog_manifest.files  | map(attribute="path") | map("basename") }}'
 
 
 
