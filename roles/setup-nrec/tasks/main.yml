@@ -51,13 +51,22 @@
     direction: egress
     remote_ip_prefix: ::/0
 
+## Create a TCP rule covering current IP
+#- name: Create security rule to TCP access instance
+#  tags: instance
+#  include_tasks: add_ipv4_rule.yml
+#  with_items: '{{ ipv4_list }}'
+#  loop_control:
+#    loop_var: ipv4_adress
+
 # Create a TCP rule covering current IP
 - name: Create security rule to TCP access instance
   tags: instance
-  include_tasks: add_ipv4_rule.yml
-  with_items: '{{ ipv4_list }}'
-  loop_control:
-    loop_var: ipv4_adress
+  openstack.cloud.security_group_rule:
+    security_group: '{{ item }}'
+    protocol: tcp
+    ethertype: IPv4
+  loop: ipv4_list
 
 - name: Create a new instance and attaches to a network # and passes metadata to the instance
   tags: instance
@@ -71,12 +80,20 @@
        nics:
          - net-name: dualStack
        security_groups:
-#             - default
          - '{{ security_group_name }}'
-#       meta:
-#         hostname: test1
-#         group: uge_master
   register: instance_result
+
+- name: Add server IP to DNS zone
+  tags: instance
+  openstack.cloud.recordset:
+    state: present
+    zone: '{{ item.value.ansible_dns }}'
+    name: '{{ item.key }}.'
+    recordset_type: "a"
+    records: ['{{ instance_result.server.addresses.dualStack | selectattr("version", "eq", 4) | map(attribute="addr") | first }}']
+    description: test recordset
+    ttl: 3600
+  with_dict: '{{ hostvars }}'
 
 # Creates a new volume
 - name: 'create {{ volume_size }} test volume'
@@ -96,25 +113,8 @@
     server: '{{ server_name }}'
     volume: '{{ volume_name }}'
 
-#- name: Add Instance to Inventory
-#  tags: instance
-#  add_host:
-#    name: nrec_server_name
-#    ansible_ssh_host: '{{ instance_result.server.addresses.dualStack | selectattr("version", "eq", 4) | map(attribute="addr") | first }}'
-#    ansible_ssh_private_key_file: '.ssh/{{ keypair_name }}.pem'
 
 
-
-- name: Add server IP to DNS zone
-  openstack.cloud.recordset:
-    state: present
-    zone: '{{ item.value.ansible_dns }}'
-    name: '{{ item.key }}.'
-    recordset_type: "a"
-    records: ['{{ instance_result.server.addresses.dualStack | selectattr("version", "eq", 4) | map(attribute="addr") | first }}']
-    description: test recordset
-    ttl: 3600
-  with_dict: '{{ hostvars }}'
 
 
 # Wait for server to finish setting up
