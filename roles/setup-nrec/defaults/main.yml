@@ -1,6 +1,6 @@
 ---
 # defaults file for setup-nrec
-server_name: ansible-test
+server_name: ansible-test3
 security_group_name: '{{ server_name }}'
 image:
   rocky:
