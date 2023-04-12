@@ -734,7 +734,11 @@
 #==============================================
 
 - name: List Jaspar sqlite database
-  tags: jaspar-database-site-data
+  tags:
+    - jaspar-database-site-data
+    - jaspar-sqlite-apache
+    - jaspar-data-features
+    - jaspar-data
   ansible.builtin.find:
     paths: '{{ jaspar2020_dir }}/'
     file_type: file
@@ -776,6 +780,102 @@
   ansible.builtin.command:
     cmd: '{{ jaspar2020_dir }}/deploy/06-user-clustering.sh'
     chdir: '{{ jaspar2020_dir }}'
+
+
+#==============================================
+# 06-user-database-downloads.sh
+#==============================================
+
+#TODO: Ansiblelized script ?
+
+- name: Moved database dump functionality into a separate tool
+  tags: jaspar-database-download
+  become: false
+  ansible.builtin.command:
+    cmd: '{{ jaspar2020_dir }}/deploy/06-user-database-downloads.sh'
+    chdir: '{{ jaspar2020_dir }}'
+
+#
+#- name: Make database directory
+#  tags: jaspar-database-download
+#  ansible.builtin.file:
+#    state: directory
+#    path: '{{ jaspar_app_dir }}/download/database'
+#    owner: '{{ ansible_user }}'
+#    mode: '0755'
+#
+##TODO: Handle the wildcard case.
+#
+#- name: Generate a dump file from the database
+#  tags: jaspar-database-download
+#  ansible.builtin.shell: |
+#    DUMP=`mktemp --suffix=.sql`
+#    '{{ jaspar2020_dir }}'/deploy/tools/dump_database '{{ item | basename }}' $DUMP
+##    cmd: '{{ jaspar2020_dir }}/deploy/tools/dump_database {{ item | basename }} mktemp --suffix=.sql'
+##    chdir: '{{ jaspar2020_dir }}'
+#  loop: '{{ jaspar_sqlite.files  | map(attribute="path") }}'
+#  args:
+#    chdir: '{{ jaspar2020_dir }}'
+#
+#- name: Create a zip archive of dump
+#  community.general.archive:
+#    path: /path/to/foo
+#    format: zip
+
+#==============================================
+# 06-user-sqlite-apache.sh
+#==============================================
+
+- name: Set permissions on the application directory for SQLite write access
+  tags: jaspar-sqlite-apache
+  ansible.posix.acl:
+    path: '{{ jaspar2020_dir }}'
+    entity: '{{ apache_user }}'
+    permissions: rwx
+    etype: user
+    state: present
+
+
+- name: Set permissions on sqlite SQLite file write access
+  tags: jaspar-sqlite-apache
+  ansible.posix.acl:
+    path: '{{ item }}'
+    entity: '{{ apache_user }}'
+    permissions: rwx
+    etype: user
+    state: present
+  loop: '{{ jaspar_sqlite.files  | map(attribute="path") }}'
+
+
+#==============================================
+# 07-user-data-features.sh
+#==============================================
+
+#TODO: Ansiblelized inseide script ?
+
+- name: Moved database dump functionality into a separate tool
+  tags: jaspar-data-features
+  become: false
+  ansible.builtin.command:
+    cmd: '{{ jaspar2020_dir }}/deploy/tools/import_features {{ item }}'
+    chdir: '{{ jaspar2020_dir }}'
+  loop: '{{ jaspar_sqlite.files  | map(attribute="path") }}'
+
+
+#==============================================
+# 07-user-data.sh
+#==============================================
+
+#TODO: Ansiblelized inseide script ?
+
+- name: Moved database dump functionality into a separate tool
+  tags: jaspar-data
+  become: false
+  ansible.builtin.command:
+    cmd: '{{ jaspar2020_dir }}/deploy/tools/import_data {{ item }}'
+    chdir: '{{ jaspar2020_dir }}'
+  loop: '{{ jaspar_sqlite.files  | map(attribute="path") }}'
+
 
 
 ## Installs system packages. Can easily be ansified.
