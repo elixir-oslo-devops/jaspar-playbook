@@ -45,6 +45,15 @@
     mode: '0755'
     recurse: false
 
+- name: Make data directory
+  become: true
+  ansible.builtin.file:
+    state: directory
+    path: '{{ jaspar_data_dir }}'
+    owner: '{{ ansible_user }}'
+    mode: '0755'
+    recurse: false
+
 - name: Certbot account register
   tags: certification
   become: true
@@ -95,7 +104,7 @@
 # builtin.get_url not appear to support recursive download
 - name: Fetch JASPAR data
   tags: fetch-data
-  become: true
+#  become: true
   ansible.builtin.command:
     cmd: 'wget -r -nv -nc -nd -np -l 1 --no-check-certificate -e robots=off -P {{ jaspar_data_dir }} {{ jaspar_data_url }} '
   register: wget_result
@@ -528,7 +537,7 @@
 #TODO: Ansiblelized script ?
 
 - name: Deal with static content
-  tags: webserver
+  tags: static-data
   become: false
   ansible.builtin.command:
     cmd: '{{ jaspar2020_dir }}/deploy/03-user-static-data.sh'
@@ -546,22 +555,23 @@
 
 #TODO: Ansiblelized script ?
 
-- name: Import the metadata into the database from each versioned metadata directory
-  tags: jaspar-version
-  become: false
-  ansible.builtin.find:
-    paths: '{{ jaspar2020_dir }}/deploy/work/metadata/'
-    excludes: '*backup*'
-    file_type: directory
-  register: metadata_directory_list
-
-
-
-#- name: Deal with metadata
+#- name: Import the metadata into the database from each versioned metadata directory
+#  tags: jaspar-version
 #  become: false
-#  ansible.builtin.command:
-#    cmd: '{{ jaspar2020_dir }}/deploy/04-user-metadata.sh'
-#    chdir: '{{ jaspar2020_dir }}'
+#  ansible.builtin.find:
+#    paths: '{{ jaspar2020_dir }}/deploy/work/metadata/'
+#    excludes: '*backup*'
+#    file_type: directory
+#  register: metadata_directory_list
+
+
+
+- name: Deal with metadata
+  tags: jaspar-metadata
+  become: false
+  ansible.builtin.command:
+    cmd: '{{ jaspar2020_dir }}/deploy/04-user-metadata.sh'
+    chdir: '{{ jaspar2020_dir }}'
 
 
 #==============================================
@@ -718,6 +728,40 @@
     create: true
   loop: '{{ jaspar_changelog_manifest.files  | map(attribute="path") | map("basename") }}'
 
+
+#==============================================
+# 05-user-database-site-data.sh
+#==============================================
+
+- name: List Jaspar sqlite database
+  tags: jaspar-database-site-data
+  ansible.builtin.find:
+    paths: '{{ jaspar2020_dir }}/'
+    file_type: file
+    patterns: JASPAR*sqlite3
+  register: jaspar_sqlite
+
+- name: Get database current release
+  tags: jaspar-database-site-data
+  ansible.builtin.set_fact:
+    current_database: '{{ jaspar_sqlite.files  | map(attribute="path") | list | sort | last | basename | split(".") | first | regex_replace("^[a-zA-Z]+", "") }}'
+  failed_when: '{{ current_database }} == ""'
+
+- name: Check site data exists
+  tags: jaspar-database-site-data
+  ansible.builtin.find:
+    paths: '{{ jaspar_data_dir }}/'
+    file_type: file
+    patterns: 'jaspar-site-data-{{ current_database }}.sql'
+  register: jaspar_site_data
+
+#TODO: Handle the wildcard case.
+
+- name: Add existing site data to the database
+  tags: jaspar-database-site-data
+  become: false
+  ansible.builtin.shell: 'sqlite3 {{ item }}<{{ jaspar_data_dir }}/jaspar-site-data-{{ current_database }}.sql'
+  loop: '{{ jaspar_sqlite.files  | map(attribute="path") }}'
 
 
 ## Installs system packages. Can easily be ansified.
