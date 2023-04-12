@@ -764,6 +764,20 @@
   loop: '{{ jaspar_sqlite.files  | map(attribute="path") }}'
 
 
+#==============================================
+# 06-user-clustering.sh
+#==============================================
+
+#TODO: Ansiblelized script ?
+
+- name: Handle an absence of archetypes and clustering data
+  tags: jaspar-clustering
+  become: false
+  ansible.builtin.command:
+    cmd: '{{ jaspar2020_dir }}/deploy/06-user-clustering.sh'
+    chdir: '{{ jaspar2020_dir }}'
+
+
 ## Installs system packages. Can easily be ansified.
 #- name: Run initial privileged deploy scripts
 #  tags:
