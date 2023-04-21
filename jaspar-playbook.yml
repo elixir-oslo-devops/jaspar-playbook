@@ -1,9 +1,12 @@
 # tasks file for setup-nrec
 - hosts: localhost
+  vars:
+    server_name: ansible-test4
+    host_name: test4.jaspar.uiocloud.no
   roles:
     - setup-nrec
 
-- hosts: nrec_server_name
+- hosts: test4.jaspar.uiocloud.no
   remote_user: rocky
   become: true
   roles:
