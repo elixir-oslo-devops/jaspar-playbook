@@ -4,7 +4,7 @@ Repo for issues related to Jaspar
 ## Set up conda environment
 
 ```
-conda create -n ansible python=3 python-openstackclient "openstacksdk<0.99" ansible
+conda create -n ansible python=3 python-openstackclient python-designateclient "openstacksdk<0.99" ansible
 conda activate ansible
 ```
 
