@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ### Ansible template
 *.retry
 
@@ -147,3 +148,10 @@ cython_debug/
 keystone_rc.sh
 /Dockerfile
 /.ssh/
+=======
+/roles/*
+/.ssh/
+/keystone_rc.sh
+.idea
+/files/*
+>>>>>>> fab094c (Test requirement)
