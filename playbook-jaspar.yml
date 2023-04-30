@@ -1,0 +1,5 @@
+- name: Set up NREC server for all hosts
+  hosts: localhost
+  roles:
+    - role: '/Users/jeannech/PycharmProjects/ansible-role-setup-nrec'
+      server_name: 'ansible-test99'
