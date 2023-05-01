@@ -320,7 +320,7 @@
     - 01-user-dependencies
   become: true
   ansible.builtin.pip:
-    extra_args: '--root {{ jaspar2020_dir }}//lib'
+    extra_args: '--root {{ jaspar2020_dir }}/lib'
     name:
       - bootstrap-admin
       - biopython==1.76
