@@ -13,14 +13,81 @@
 - name: Install prerequisite
   tags:
     - jaspar
-    - package-installation
   become: true
   ansible.builtin.package:
+    name: '{{ item }}'
     state: present
     update_cache: true
   loop:
     - mod_ssl
   when: ansible_user == 'rocky'
+
+- name: Make base directory
+  tags:
+    - jaspar
+    - initialization
+  become: true
+  ansible.builtin.file:
+    state: directory
+    path: '{{ jaspar_app_dir }}'
+    owner: '{{ ansible_user }}'
+    mode: '0755'
+    recurse: false
+
+- name: Clone main repo
+  tags:
+    - jaspar
+    - initialization
+  become: false
+  ansible.builtin.git:
+    repo: '{{ jaspar_app_git_repo }}'
+    dest: '{{ jaspar2020_dir }}'
+    version: '{{ jaspar_app_git_version }}'
+    update: false
+    force: false
+
+- name: Make data directory
+  tags:
+    - jaspar
+    - initialization
+  become: true
+  ansible.builtin.file:
+    state: directory
+    path: '{{ jaspar_data_dir }}'
+    owner: '{{ ansible_user }}'
+    mode: '0755'
+    recurse: false
+
+- name: Fetch JASPAR data
+  tags:
+    - jaspar
+    - initialization
+#  become: true
+  ansible.builtin.command:
+    cmd: 'wget -r -nv -nc -nd -np -l 1 --no-check-certificate -e robots=off -P {{ jaspar_data_dir }} {{ jaspar_data_url }} '
+  register: wget_result
+  changed_when: '"Downloaded:" in wget_result.stderr'
+
+#
+#- name: Clone branding repo
+#  tags:
+#    - jaspar
+#    - initialization
+#  become: false
+#  ansible.builtin.git:
+#    repo: '{{ jaspar_branding_git_repo }}'
+#    dest: '{{ jaspar_app_dir }}/jaspar-branding'
+#    version: master
+#
+#- name: Clone tools repo
+#  tags:
+#    - jaspar
+#    - initialization
+#  become: false
+#  ansible.builtin.git:
+#    repo: '{{ jaspar_tools_git_repo }}'
+#    dest: '{{ jaspar_tool_dir }}'
+#    version: '{{ jaspar_app_git_version }}'
 
 #==============================================
 # 00-user-deploy-tools.sh
