@@ -21,6 +21,7 @@
   loop:
     - mod_ssl
     - git
+    - httpd
   when: ansible_user == 'rocky'
 
 - name: Make base directory
@@ -135,6 +136,13 @@
         path:  '/home/{{ ansible_user }}/.bashrc'
         line: 'PATH=/home/{{ ansible_user }}/miniconda/bin:$PATH'
         create: yes
+
+- name: Init miniconda
+  tags:
+    - jaspar
+    - 00-root-packages
+  ansible.builtin.command:
+    cmd: 'conda init'
 
 #==============================================
 # 00-user-deploy-tools.sh
@@ -312,6 +320,7 @@
     - 01-user-dependencies
   become: true
   ansible.builtin.pip:
+    extra_args: '--root {{ jaspar2020_dir }}//lib'
     name:
       - bootstrap-admin
       - biopython==1.76
