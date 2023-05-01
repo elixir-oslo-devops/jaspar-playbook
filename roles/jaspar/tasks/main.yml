@@ -308,7 +308,7 @@
     - jaspar
     - 01-user-dependencies
   ansible.builtin.command:
-    cmd: 'conda create -c defaults -c conda-forge -c bioconda -y -p {{ jaspar2020_dir }}/lib/usr/local blast hmmer'
+    cmd: 'conda create -c defaults -c conda-forge -c bioconda -y -p {{ jaspar_base_dir }}/{{ jaspar_app }}/lib/usr/local blast hmmer'
 
 
 - name: Add another bin dir to system-wide $PATH.
