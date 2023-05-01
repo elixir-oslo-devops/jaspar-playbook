@@ -124,11 +124,11 @@
     - name: downloading installation script
       ansible.builtin.get_url:
         url: '{{ miniconda_url }}'
-        dest: /temp/miniconda.sh
+        dest: /tmp/miniconda.sh
         checksum: 'sha256:{{ miniconda_hash }}'
     - name: Run miniconda script
       ansible.builtin.script:
-        cmd: '/temp/miniconda.sh -b -p /home/{{ ansible_user }}/miniconda'
+        cmd: '/tmp/miniconda.sh -b -p /home/{{ ansible_user }}/miniconda'
 
 #==============================================
 # 00-user-deploy-tools.sh
