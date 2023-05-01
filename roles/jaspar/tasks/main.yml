@@ -1,5 +1,15 @@
 ---
 # tasks file for jaspar
+- name: Install EPEL repo
+  tags:
+    - apache
+  become: true
+  ansible.builtin.dnf:
+    name: epel-release
+    state: latest
+  when: ansible_user == 'rocky'
+
+
 - name: Install prerequisite
   tags:
     - jaspar
@@ -12,4 +22,5 @@
     - python3-pip
     - certbot
     - python3-certbot-apache
+    - mod_ssl
   when: ansible_user == 'rocky'
