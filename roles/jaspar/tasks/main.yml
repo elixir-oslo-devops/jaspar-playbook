@@ -131,8 +131,10 @@
       ansible.builtin.command:
         cmd: '/tmp/miniconda.sh -b -p /home/{{ ansible_user }}/miniconda'
     - name: Activate miniconda
-      ansible.builtin.command:
-        cmd: 'source /home/{{ ansible_user }}/miniconda/bin/activate'
+      ansible.builtin.lineinfile:
+        path:  '/home/{{ ansible_user }}/.bashrc'
+        line: 'PATH=/home/{{ ansible_user }}/miniconda/bin:$PATH'
+        create: yes
 
 #==============================================
 # 00-user-deploy-tools.sh
