@@ -1,5 +1,8 @@
 ---
 # vars file for jaspar
+jaspar_app_git_repo: 'https://bitbucket.org/CBGR/jaspar2020.git'
+jaspar_app_git_version: '20211214-buildah-deployment'
+jaspar_data_url: 'https://frigg.uio.no/ftp/mathelier/JASPAR_RELEASES_2022-02-11/'
 
 jaspar_app_dir: '{{ jaspar_base_dir }}/{{ jaspar_app }}'
 
