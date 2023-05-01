@@ -142,7 +142,7 @@
       - gcc-c++
       - git
       - gsl-devel
-  enablerepo: devel
+    enablerepo: devel
   when: ansible_user == 'rocky'
 
 
