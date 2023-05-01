@@ -136,10 +136,13 @@
     - jaspar
     - 00-user-deploy-tools
   become: true
-  ansible.builtin.package:
+  ansible.builtin.dnf:
     state: present
     name:
       - gcc-c++
       - git
       - gsl-devel
+  enablerepo: devel
+  when: ansible_user == 'rocky'
+
 
