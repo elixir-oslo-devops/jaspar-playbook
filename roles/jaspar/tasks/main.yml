@@ -327,7 +327,6 @@
   tags:
     - jaspar
     - 01-user-dependencies
-  become: true
   ansible.builtin.pip:
     extra_args: '--root {{ jaspar2020_dir }}/lib'
     name:
