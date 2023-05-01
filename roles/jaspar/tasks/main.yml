@@ -132,7 +132,7 @@
         cmd: '/tmp/miniconda.sh -b -p /home/{{ ansible_user }}/miniconda'
     - name: Activate miniconda
       ansible.builtin.command:
-        cmd: 'source /home/{{ ansible_user }}/miniconda'
+        cmd: 'source /home/{{ ansible_user }}/miniconda/bin/activate'
 
 #==============================================
 # 00-user-deploy-tools.sh
