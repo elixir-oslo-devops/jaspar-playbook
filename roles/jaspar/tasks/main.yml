@@ -47,6 +47,16 @@
     update: false
     force: false
 
+- name: Clone branding repo
+  tags:
+    - jaspar
+    - initialization
+  become: false
+  ansible.builtin.git:
+    repo: '{{ jaspar_branding_git_repo }}'
+    dest: '{{ jaspar_app_dir }}/jaspar-branding'
+    version: master
+
 - name: Make data directory
   tags:
     - jaspar
