@@ -127,9 +127,8 @@
         dest: /tmp/miniconda.sh
         checksum: 'sha256:{{ miniconda_hash }}'
     - name: Run miniconda script
-      ansible.builtin.script:
+      ansible.builtin.command:
         cmd: '/tmp/miniconda.sh -b -p /home/{{ ansible_user }}/miniconda'
-        remote_src: true
 
 #==============================================
 # 00-user-deploy-tools.sh
