@@ -19,8 +19,41 @@
     state: present
     update_cache: true
   loop:
-    - python3-pip
-    - certbot
-    - python3-certbot-apache
     - mod_ssl
+  when: ansible_user == 'rocky'
+
+#==============================================
+# 00-user-deploy-tools.sh
+#==============================================
+
+- name: Install prerequisite
+  tags:
+    - jaspar
+    - 00-user-deploy-tools
+  become: true
+  ansible.builtin.package:
+    name: '{{ item }}'
+    state: present
+    update_cache: true
+  loop:
+    - acl
+    - certbot
+    - cpio
+    - gcc
+    - gcc-c++
+    - gzip
+    - libcurl-devel
+    - libxml2-devel
+    - make
+    - openssl-devel
+    - patch
+    - perl-interpreter
+    - python3
+    - python3-certbot-apache
+    - python3-devel
+    - python3-pip
+    - python3-mod_wsgi
+    - sqlite
+    - wget
+    - which
   when: ansible_user == 'rocky'
