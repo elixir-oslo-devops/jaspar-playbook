@@ -130,6 +130,9 @@
     - name: Run miniconda script
       ansible.builtin.command:
         cmd: '/tmp/miniconda.sh -b -p /home/{{ ansible_user }}/miniconda'
+    - name: Activate miniconda
+      ansible.builtin.command:
+        cmd: 'source /home/{{ ansible_user }}/miniconda'
 
 #==============================================
 # 00-user-deploy-tools.sh
