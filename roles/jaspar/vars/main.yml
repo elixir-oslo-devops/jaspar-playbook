@@ -1,4 +1,6 @@
 ---
+# vars file for jaspar
+
 jaspar_app_dir: '{{ jaspar_base_dir }}/{{ jaspar_app }}'
 
 sef_httpd_content:

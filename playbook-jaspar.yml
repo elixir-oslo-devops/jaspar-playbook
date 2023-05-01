@@ -3,3 +3,9 @@
   roles:
     - role: 'ansible-role-setup-nrec'
       server_name: 'ansible-test99'
+
+
+- name: Set up Jaspar
+  hosts: ansible-test99
+  roles:
+    - jaspar
