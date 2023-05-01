@@ -79,35 +79,15 @@
   register: wget_result
   changed_when: '"Downloaded:" in wget_result.stderr'
 
-#
-#- name: Clone branding repo
-#  tags:
-#    - jaspar
-#    - initialization
-#  become: false
-#  ansible.builtin.git:
-#    repo: '{{ jaspar_branding_git_repo }}'
-#    dest: '{{ jaspar_app_dir }}/jaspar-branding'
-#    version: master
-#
-#- name: Clone tools repo
-#  tags:
-#    - jaspar
-#    - initialization
-#  become: false
-#  ansible.builtin.git:
-#    repo: '{{ jaspar_tools_git_repo }}'
-#    dest: '{{ jaspar_tool_dir }}'
-#    version: '{{ jaspar_app_git_version }}'
 
 #==============================================
-# 00-user-deploy-tools.sh
+# 00-root-packages.sh
 #==============================================
 
 - name: Install prerequisite
   tags:
     - jaspar
-    - 00-user-deploy-tools
+    - 00-root-packages
   become: true
   ansible.builtin.package:
     name: '{{ item }}'
@@ -135,3 +115,31 @@
     - wget
     - which
   when: ansible_user == 'rocky'
+
+#==============================================
+# 00-user-deploy-tools.sh
+#==============================================
+
+- name: Clone tools repo
+  tags:
+    - jaspar
+    - 00-user-deploy-tools
+  become: false
+  ansible.builtin.git:
+    repo: '{{ jaspar_tools_git_repo }}'
+    dest: '{{ jaspar_tool_dir }}'
+    version: '{{ jaspar_app_git_version }}'
+
+
+- name: Install packages for tools
+  tags:
+    - jaspar
+    - 00-user-deploy-tools
+  become: true
+  ansible.builtin.package:
+    state: present
+    name:
+      - gcc-c++
+      - git
+      - gsl-devel
+
