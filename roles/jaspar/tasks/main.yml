@@ -293,15 +293,6 @@
   ansible.builtin.command:
     cmd: 'conda create -c defaults -c conda-forge -c bioconda -y -p {{ jaspar2020_dir }}/lib/usr/local blast hmmer'
 
-#- name: Add another bin dir to system-wide $PATH.
-#  tags:
-#    - jaspar
-#    - 01-user-dependencies
-#  become: true
-#  ansible.builtin.copy:
-#    dest: /etc/profile.d/custom-path.sh
-#    content: 'PATH=$PATH:{{ jaspar2020_dir }}/lib/usr/local/bin'
-#  when: "ansible_env.PATH is not search( '/var/www/apps/jaspar2020/lib/usr/local/bin')"
 
 - name: Add another bin dir to system-wide $PATH.
   tags:
