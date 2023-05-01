@@ -20,6 +20,7 @@
     update_cache: true
   loop:
     - mod_ssl
+    - git
   when: ansible_user == 'rocky'
 
 - name: Make base directory
