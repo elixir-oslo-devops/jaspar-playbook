@@ -21,7 +21,16 @@
   loop:
     - mod_ssl
     - git
+    - acl
+    - certbot
     - httpd
+    - mod_ssl
+    - python3
+    - python3-certbot-apache
+    - python3-mod_wsgi
+    - sqlite
+    - wget
+    - which
   when: ansible_user == 'rocky'
 
 - name: Make base directory
