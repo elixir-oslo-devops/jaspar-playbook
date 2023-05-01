@@ -116,6 +116,20 @@
     - which
   when: ansible_user == 'rocky'
 
+- name: Install miniconda
+  tags:
+    - jaspar
+    - 00-root-packages
+  block:
+    - name: downloading installation script
+      ansible.builtin.get_url:
+        url: '{{ miniconda_url }}'
+        dest: /temp/miniconda.sh
+        checksum: '{{ miniconda_hash }}'
+    - name: Run miniconda script
+      ansible.builtin.script:
+        cmd: '/temp/miniconda.sh -b -p /home/{{ ansible_user }}/miniconda'
+
 #==============================================
 # 00-user-deploy-tools.sh
 #==============================================
@@ -146,3 +160,178 @@
   when: ansible_user == 'rocky'
 
 
+- name: Create a common directory for build output
+  tags:
+    - jaspar
+    - 00-user-deploy-tools
+  ansible.builtin.file:
+    path: '{{ jaspar_bin_dir }}'
+    state: directory
+    owner: '{{ ansible_user }}'
+    mode: '0755'
+
+- name: Building matrix aligner
+  tags:
+    - jaspar
+    - 00-user-deploy-tools
+  ansible.builtin.command:
+    chdir: '{{ jaspar_tool_dir }}/matrixaligner'
+    cmd: 'g++ -o {{ jaspar_bin_dir }}/matrix_aligner matrix_aligner.cc'
+
+- name: Clone PWM randomization
+  tags:
+    - jaspar
+    - 00-user-deploy-tools
+  ansible.builtin.git:
+    repo: '{{ jaspar_pwd_random_git_repo }}'
+    dest: '{{ jaspar_tool_dir }}/CSC'
+    version: master
+
+- name: Find .cc files equal for PWM randomization
+  tags:
+    - jaspar
+    - 00-user-deploy-tools
+  ansible.builtin.find:
+    paths: '{{ jaspar_tool_dir }}/CSC/JASPAR/PWMrandomization/CLHEP/Random/'
+    patterns: '*.cc'
+  register: pwm_cc_file_list
+
+
+- name: Concatenate .cc file into string
+  tags:
+    - jaspar
+    - 00-user-deploy-tools
+  ansible.builtin.set_fact:
+    pwm_cc_file_str: "{{ pwm_cc_file_list.files | map(attribute='path') | join(' ') | replace('/var/www/apps/jaspar_tools/CSC/JASPAR/PWMrandomization/','') }}"
+
+- name: Building PWM randomization
+  tags:
+    - jaspar
+    - 00-user-deploy-tools
+  ansible.builtin.command:
+    chdir: '{{ jaspar_tool_dir }}/CSC/JASPAR/PWMrandomization'
+    cmd: 'g++ -o {{ jaspar_bin_dir }}/PWMrandom main.cc {{ pwm_cc_file_str }}'
+
+- name: Clone stamp
+  tags:
+    - jaspar
+    - 00-user-deploy-tools
+  become: false
+  ansible.builtin.git:
+    repo: '{{ jaspar_stamp_git_repo }}'
+    dest: '{{ jaspar_tool_dir }}/stamp'
+    version: master
+
+- name: Building PWM randomization
+  tags:
+    - jaspar
+    - 00-user-deploy-tools
+  ansible.builtin.command:
+    chdir: '{{ jaspar_tool_dir }}/stamp/src'
+    cmd: 'g++ -o {{ jaspar_bin_dir }}/stamp Motif.cpp Alignment.cpp ColumnComp.cpp PlatformSupport.cpp PlatformTesting.cpp Tree.cpp NeuralTree.cpp MultipleAlignment.cpp RandPSSMGen.cpp ProteinDomains.cpp main.cpp -lm -lgsl -lgslcblas'
+
+- name: Set labels for SELinux
+  tags:
+    - jaspar
+    - 00-user-deploy-tools
+  become: true
+  community.general.sefcontext:
+    target: '{{ jaspar_bin_dir }}(/.*)?'
+    setype: bin_t
+    ftype: 'a'
+    state: present
+
+- name: Apply the labelling for SELinux
+  tags:
+    - jaspar
+    - 00-user-deploy-tools
+  become: true
+  ansible.builtin.command:
+     cmd: 'restorecon -R {{ jaspar_bin_dir}}'
+
+
+#==============================================
+# 00-user-site.sh
+#==============================================
+
+- name: Make work directory
+  tags:
+    - jaspar
+    - settings
+  become: true
+  ansible.builtin.file:
+    state: directory
+    path: '{{ jaspar2020_dir }}/deploy/work'
+    owner: '{{ ansible_user }}'
+    mode: '0755'
+    recurse: false
+
+- name: Make a symbolic link to the secure site definition
+  tags:
+    - jaspar
+    - 00-user-site
+  ansible.builtin.template:
+    src: 'files/site.conf-ssl'
+    dest: '{{ jaspar2020_dir }}/deploy/conf/{{ ansible_ssh_host }}.conf-ssl'
+
+
+
+#==============================================
+# 01-user-dependencies.sh
+#==============================================
+
+- name: Create conda environment with correct package
+  tags:
+    - jaspar
+    - 01-user-dependencies
+  ansible.builtin.command:
+    cmd: 'conda create -c defaults -c conda-forge -c bioconda -y -p {{ jaspar2020_dir }}/lib/usr/local blast hmmer'
+
+#- name: Add another bin dir to system-wide $PATH.
+#  tags:
+#    - jaspar
+#    - 01-user-dependencies
+#  become: true
+#  ansible.builtin.copy:
+#    dest: /etc/profile.d/custom-path.sh
+#    content: 'PATH=$PATH:{{ jaspar2020_dir }}/lib/usr/local/bin'
+#  when: "ansible_env.PATH is not search( '/var/www/apps/jaspar2020/lib/usr/local/bin')"
+
+- name: Add another bin dir to system-wide $PATH.
+  tags:
+    - jaspar
+    - 01-user-dependencies
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/profile.d/custom-path.sh
+    line: 'PATH={{ jaspar2020_dir }}/lib/usr/local/bin:$PATH'
+    create: yes
+  when: "ansible_env.PATH is not search( '/var/www/apps/jaspar2020/lib/usr/local/bin')"
+
+
+- name: Install python package
+  tags:
+    - jaspar
+    - 01-user-dependencies
+  become: true
+  ansible.builtin.pip:
+    name:
+      - bootstrap-admin
+      - biopython==1.76
+      - coreapi
+      - django==2.2.17
+      - django-filter
+      - django-bootstrap-form
+      - django_compressor
+      - django-debug-toolbar
+      - django-recaptcha
+      - django-rest-framework
+      - django-rest-swagger
+      - djangorestframework-jsonp
+      - djangorestframework-yaml
+      - markdown
+      - numpy
+      - pandas
+      - pygments
+      - scipy
+      - tqdm
