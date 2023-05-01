@@ -126,8 +126,8 @@
         url: '{{ miniconda_url }}'
         dest: /tmp/miniconda.sh
         checksum: 'sha256:{{ miniconda_hash }}'
+        mode: u=rwx,g=rwx,o=r
     - name: Run miniconda script
-      become: true
       ansible.builtin.command:
         cmd: '/tmp/miniconda.sh -b -p /home/{{ ansible_user }}/miniconda'
 
