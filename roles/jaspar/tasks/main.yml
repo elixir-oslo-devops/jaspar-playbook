@@ -101,6 +101,19 @@
     cmd: '{{ jaspar_app_dir }}/deploy.sh -u -- -s {{ jaspar_hostname }} -d {{ jaspar_data_dir }} -S'
     creates: '{{ jaspar_app_dir }}/deploy-logs/07-user-downloads.sh'
 
+- name: Set SELinux file context for lib
+  tags:
+    - jaspar
+    - finalization
+  become: true
+  community.general.sefcontext:
+    target: '{{ jaspar_base_dir }}/{{ item | regex_replace("/$", "(/.*)?") }}'
+    setype: lib_t
+    state: present
+  loop: '{{ sef_lib_t_content }}'
+  register: sefcontext
+  notify: Apply SELinux file contexts
+
 # Time: ca 2 min
 - name: Run final privileged deploy scripts
   tags:
