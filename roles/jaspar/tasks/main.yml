@@ -146,12 +146,23 @@
         line: 'PATH=/home/{{ ansible_user }}/miniconda/bin:$PATH'
         create: yes
 
+- name: "Searching for a String"
+  tags:
+    - jaspar
+  lineinfile:
+    path: '/home/{{ ansible_user }}/.bashrc'
+    line: "# >>> conda initialize >>> debug"
+    state: present
+  check_mode: yes
+  register: presence
+
 - name: Init miniconda
   tags:
     - jaspar
     - 00-root-packages
   ansible.builtin.command:
     cmd: 'conda init'
+  when: presence is changed
 
 #==============================================
 # 00-user-deploy-tools.sh
