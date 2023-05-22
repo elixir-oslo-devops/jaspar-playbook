@@ -143,7 +143,7 @@
     - name: Activate miniconda
       ansible.builtin.lineinfile:
         path:  '/home/{{ ansible_user }}/.bashrc'
-        line: 'PATH=/home/{{ ansible_user }}/miniconda/bin:$PATH'
+        line: 'PATH=$PATH:/home/{{ ansible_user }}/miniconda/bin'
         create: yes
 
 - name: "Searching for a String"
