@@ -2,10 +2,10 @@
   hosts: localhost
   roles:
     - role: 'ansible-role-setup-nrec'
-      server_name: 'ansible-test99'
+      server_name: 'ansible-dev'
 
 
 - name: Set up Jaspar
-  hosts: ansible-test99
+  hosts: ansible-dev
   roles:
     - jaspar
