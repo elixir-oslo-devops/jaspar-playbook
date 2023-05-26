@@ -1,0 +1,52 @@
+---
+# tasks file for 06-user-sqlite-apache
+
+
+#TODO: Ansiblelized script ?
+- name: Set permissions on the application directory for SQLite write access.
+  become: false
+  ansible.builtin.command:
+    cmd: '{{ jaspar_app_dir }}/deploy/06-user-sqlite-apache.sh'
+    chdir: '{{ jaspar_app_dir }}'
+
+
+#
+#
+#- name: List Jaspar sqlite database
+#  tags:
+#    - jaspar
+#    - 06-user-sqlite-apache
+#    - ACL-permission
+#  ansible.builtin.find:
+#    paths: '{{ jaspar_app_dir }}/'
+#    file_type: file
+#    patterns: JASPAR*sqlite3
+#    excludes: '*BACKUP*'
+#  register: latest_jaspar_sqlite
+#
+#- name: Set permissions on the application directory for SQLite write access
+#  tags:
+#    - jaspar
+#    - 06-user-sqlite-apache
+#    - ACL-permission
+#  ansible.posix.acl:
+#    path: '{{ jaspar_app_dir }}'
+#    entity: '{{ apache_user }}'
+#    permissions: rwx
+#    etype: user
+#    state: present
+#
+#
+#- name: Set permissions on sqlite SQLite file write access
+#  tags:
+#    - jaspar
+#    - 06-user-sqlite-apache
+#    - ACL-permission
+#  ansible.posix.acl:
+#    path: '{{ item }}'
+#    entity: '{{ apache_user }}'
+#    permissions: rw
+#    etype: user
+#    state: present
+#  loop: '{{ latest_jaspar_sqlite.files  | map(attribute="path") }}'
+#

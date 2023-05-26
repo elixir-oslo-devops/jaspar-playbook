@@ -1,0 +1,10 @@
+---
+# tasks file for 04-user-metadata
+
+#Note: About 1 min
+#TODO: Ansiblelized script ?
+- name: Import the metadata into the database from each versioned metadata directory.
+  become: false
+  ansible.builtin.command:
+    cmd: '{{ jaspar_app_dir }}/deploy/04-user-metadata.sh'
+    chdir: '{{ jaspar_app_dir }}'

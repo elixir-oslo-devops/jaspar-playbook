@@ -1,0 +1,32 @@
+---
+# tasks file for 02-user-profile-inference
+
+#TODO: Ansiblelized script ?
+- name: Download the package and place it in the base directory.
+  become: false
+  ansible.builtin.command:
+    cmd: '{{ jaspar_app_dir }}/deploy/02-user-profile-inference.sh'
+    chdir: '{{ jaspar_app_dir }}'
+
+#- name: Make profile-inference for each version
+#  tags:
+#    - jaspar
+#    - 02-user-profile-inference
+#  ansible.builtin.file:
+#    state: directory
+#    path: '{{ jaspar_app_dir }}/profile-inference/{{ item.year }}'
+#    owner: '{{ ansible_user }}'
+#    mode: u=rwx,g=rx,o=rx
+#  loop: '{{ jaspar_profile_inference_version }}'
+#
+#- name: Clone profile inference for all version
+#  tags:
+#    - jaspar
+#    - 02-user-profile-inference
+#    - git-clone
+#  ansible.builtin.git:
+#    repo: '{{ jaspar_profile_inference_git_repo }}'
+#    dest: '{{ jaspar_app_dir }}/profile-inference/{{ item.year }}/jpi'
+#    version: '{{ item.jaspar_profile_inference_git_version }}'
+#  loop: '{{ jaspar_profile_inference_version }}'
+

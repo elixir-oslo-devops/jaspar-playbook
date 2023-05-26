@@ -1,0 +1,49 @@
+---
+# tasks file for 05-user-database-site-data
+
+
+#TODO: Ansiblelized script ?
+- name: Obtain any data location and use that instead of the default.
+  become: false
+  ansible.builtin.command:
+    cmd: '{{ jaspar_app_dir }}/deploy/05-user-database-site-data.sh'
+    chdir: '{{ jaspar_app_dir }}'
+
+
+#- name: List Jaspar sqlite database
+#  tags:
+#    - jaspar
+#    - 05-user-database-site-data
+#  ansible.builtin.find:
+#    paths: '{{ jaspar_app_dir }}'
+#    file_type: file
+#    patterns: 'JASPAR*sqlite3'
+#  register: jaspar_sqlite
+#
+#- name: Get database current release
+#  tags:
+#    - jaspar
+#    - 05-user-database-site-data
+#  ansible.builtin.set_fact:
+#    current_database: '{{ jaspar_sqlite.files  | map(attribute="path") | list | sort | last | basename | split(".") | first | regex_replace("^[a-zA-Z]+", "") }}'
+#  failed_when: '{{ current_database }} == ""'
+#
+#- name: Check site data exists
+#  tags:
+#    - jaspar
+#    - 05-user-database-site-data
+#  ansible.builtin.find:
+#    paths: '{{ jaspar_data_dir }}/'
+#    file_type: file
+#    patterns: 'jaspar-site-data-{{ current_database }}.sql'
+#  register: jaspar_site_data
+#
+##TODO: Handle the wildcard case.
+#
+#- name: Add existing site data to the database
+#  tags:
+#    - jaspar
+#    - 05-user-database-site-data
+#  become: false
+#  ansible.builtin.shell: 'sqlite3 {{ item }}<{{ jaspar_data_dir }}/jaspar-site-data-{{ current_database }}.sql'
+#  loop: '{{ jaspar_sqlite.files  | map(attribute="path") }}'

@@ -1,0 +1,85 @@
+---
+# tasks file for 07-user-downloads
+
+#TODO: Ansiblelized script ?
+- name: Generate archives of downloadable data.
+  become: false
+  ansible.builtin.command:
+    cmd: '{{ jaspar_app_dir }}/deploy/07-user-downloads.sh'
+    chdir: '{{ jaspar_app_dir }}'
+
+#
+#- name: List downloaded data
+#  tags:
+#    - jaspar
+#    - 07-user-downloads
+#  ansible.builtin.find:
+#    paths: '{{ jaspar_app_dir }}/download/data/'
+#    file_type: directory
+#    depth: 2
+#    recurse: true
+#    patterns:
+#      - 'bed'
+#      - 'centrality'
+#      - 'sites'
+#      - 'TFFM'
+#    excludes: backup
+#  register: jaspar_downloaded_data
+#
+#
+#- name: Archive each of the subdirectories
+#  tags:
+#    - jaspar
+#    - 07-user-downloads
+#  community.general.archive:
+#    path: '{{ item }}'
+#    dest: '{{ item }}.tar.gz'
+#    format: gz
+#    force_archive: true
+#    owner: '{{ ansible_user }}'
+#    mode: u=rw,g=r,o=r
+#  loop: '{{ jaspar_downloaded_data.files  | map(attribute="path") }}'
+#  when: redeploy_static_content|bool == true
+#
+#
+#
+#- name: List logo directory
+#  tags:
+#    - jaspar
+#    - 07-user-downloads
+#  ansible.builtin.stat:
+#    path: '{{ jaspar_app_dir }}/static/logos/all'
+#  register: jaspar_logo
+#
+#
+#- name: Throw error if logo directory does not exists
+#  tags:
+#    - jaspar
+#    - 07-user-downloads
+#  ansible.builtin.fail:
+#    msg: 'Missing logo directory in {{ jaspar_app_dir }}/static/logos/all'
+#  when:  not jaspar_logo.stat.exists
+#
+#- name: Make logos directory
+#  tags:
+#    - jaspar
+#    - 07-user-downloads
+#  ansible.builtin.file:
+#    state: directory
+#    path: '{{ jaspar_app_dir }}/download/data/all'
+#    owner: '{{ ansible_user }}'
+#    mode: u=rwx,g=rwx,o=rx
+#
+#- name: Archive logos
+#  tags:
+#    - jaspar
+#    - 07-user-downloads
+#  community.general.archive:
+#    path: '{{ jaspar_app_dir }}/static/logos/all/svg'
+#    dest: '{{ jaspar_app_dir }}/download/data/all/sequence_logos_svg.tar.gz'
+#    format: gz
+#    force_archive: true
+#    owner: '{{ ansible_user }}'
+#    mode: u=rwx,g=rwx,o=rx
+#  when: redeploy_static_content|bool == true
+#

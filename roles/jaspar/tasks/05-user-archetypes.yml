@@ -1,0 +1,113 @@
+---
+# tasks file for 05-user-archetypes
+
+
+#TODO: Ansiblelized script ?
+- name: Obtain any data location and use that instead of the default.
+  become: false
+  ansible.builtin.command:
+    cmd: '{{ jaspar_app_dir }}/deploy/05-user-archetypes.sh'
+    chdir: '{{ jaspar_app_dir }}'
+#
+#- name: Make archetype directory
+#  tags:
+#    - jaspar
+#    - 05-user-archetypes
+#  become: true
+#  ansible.builtin.file:
+#    state: directory
+#    path: '{{ jaspar_app_dir }}/static/archetypes'
+#    owner: '{{ ansible_user }}'
+#    mode: u=rwx,g=rx,o=rx
+#
+#- name: List Jaspar previous archetype
+#  tags:
+#    - jaspar
+#    - 05-user-archetypes
+#  ansible.builtin.find:
+#    paths: '{{ jaspar_app_dir }}/static/archetypes/'
+#    file_type: directory
+#    exclude: '*backup*'
+#  register: jaspar_archetype_directory
+#
+#
+#
+#- name: Backup previous archetype
+#  tags:
+#    - jaspar
+#    - 05-user-archetypes
+#  ansible.builtin.copy:
+#    src: '{{ item.path }}/'
+#    dest: '{{ item.path }}.backup-{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}'
+#    remote_src: true
+#    owner:  '{{ ansible_user }}'
+#    force: false
+#  loop: '{{ jaspar_archetype_directory.files }}'
+#
+#- name: Remove previous archetype version
+#  tags:
+#    - jaspar
+#    - 05-user-archetypes
+#  ansible.builtin.file:
+#    path: '{{ item.path }}'
+#    state: absent
+#  loop: '{{ jaspar_archetype_directory.files }}'
+#
+#- name: List Jaspar archetype
+#  tags:
+#    - jaspar
+#    - 05-user-archetypes
+#  ansible.builtin.find:
+#    paths: '{{jaspar_data_dir}}/'
+#    patterns: 'jaspar-archetypes-[0-9]{4}\.tar\.gz'
+#    use_regex: true
+#  register: jaspar_database_list
+#
+#
+#- name: Make archive archetype directory
+#  tags:
+#    - jaspar
+#    - 05-user-archetypes
+#  become: true
+#  ansible.builtin.file:
+#    state: directory
+#    path: '{{ jaspar_app_dir }}/static/archetypes/{{ item.path | basename | split(".") | first |regex_replace("\.[^.]*$", "") | regex_replace("^[a-zA-z\-\.]+") }}'
+#    owner: '{{ ansible_user }}'
+#    mode: u=rwx,g=rx,o=rx
+#  loop: '{{ jaspar_database_list.files }}'
+#
+#
+#- name: Extract archetype
+#  tags:
+#    - jaspar
+#    - 05-user-archetypes
+#  ansible.builtin.unarchive:
+#    src: '{{ item.path }}'
+#    dest: '{{ jaspar_app_dir }}/static/archetypes/{{ item.path | basename | split(".") | first |regex_replace("\.[^.]*$", "") | regex_replace("^[a-zA-z\-\.]+") }}'
+#    owner:  '{{ ansible_user }}'
+#    remote_src: yes
+#    extra_opts:
+#      - '--strip-components=1'
+#  loop: '{{ jaspar_database_list.files }}'
+#
+#
+#- name: List Jaspar current archetype
+#  tags:
+#    - jaspar
+#    - 05-user-archetypes
+#  ansible.builtin.find:
+#    paths: '{{ jaspar_app_dir }}/static/archetypes/'
+#    file_type: directory
+#    exclude: '*backup*'
+#  register: jaspar_current_archetype_directory
+#
+#
+#- name: Make a record of available archetypes data for releases
+#  tags:
+#    - jaspar
+#    - 05-user-archetypes
+#  ansible.builtin.lineinfile:
+#    path: '{{ jaspar_app_dir }}/deploy/work/archetypes_releases.txt'
+#    line: '{{ item.path  | basename | split(".") | first |regex_replace("\.[^.]*$", "") | regex_replace("^[a-zA-z\-\.]+")}}'
+#    create: true
+#  loop: '{{ jaspar_current_archetype_directory.files }}'

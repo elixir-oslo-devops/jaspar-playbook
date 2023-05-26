@@ -1,0 +1,9 @@
+---
+# tasks file for 02-user-hmmer
+
+- name: Test for one of the programs and exit if it is already available.
+  become: false
+  ansible.builtin.command:
+    cmd: 'which nhmmer'
+  register: which_hmmer
+  failed_when: which_hmmer is not regex(jaspar_base_dir)

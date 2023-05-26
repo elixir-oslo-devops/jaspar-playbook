@@ -1,0 +1,21 @@
+---
+# tasks file for 07-user-data-features
+
+#TODO: Ansiblelized script ?
+- name: Run tools to update each database with feature information.
+  become: false
+  ansible.builtin.command:
+    cmd: '{{ jaspar_app_dir }}/deploy/07-user-data-features.sh'
+    chdir: '{{ jaspar_app_dir }}'
+
+#
+##TODO: Ansiblelized inseide script ?
+#
+#- name: Moved database dump functionality into a separate tool
+#  tags:
+#    - jaspar
+#    - 07-user-data-features
+#  ansible.builtin.command:
+#    cmd: '{{ jaspar_app_dir }}/deploy/tools/import_features {{ item }}'
+#    chdir: '{{ jaspar_app_dir }}'
+#  loop: '{{ jaspar_sqlite.files  | map(attribute="path") }}'

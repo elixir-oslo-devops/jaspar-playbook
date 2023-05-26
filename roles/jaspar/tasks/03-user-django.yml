@@ -1,0 +1,48 @@
+---
+# tasks file for 03-user-django
+
+#TODO: Ansiblelized script ?
+- name: Obtain the Python version and amend the path configuration.
+  become: false
+  ansible.builtin.command:
+    cmd: '{{ jaspar_app_dir }}/deploy/03-user-django.sh'
+    chdir: '{{ jaspar_app_dir }}'
+#
+##TODO: get python version number
+#
+#
+#- name: Build python path
+#  tags:
+#    - jaspar
+#    - 03-user-django
+#  ansible.builtin.command:
+#    cmd: '{{ jaspar_app_dir }}/deploy/tools/python_path'
+#  register: pythonpath
+#
+#- name: Create a secret key
+#  tags:
+#    - jaspar
+#    - 03-user-django
+#  ansible.builtin.command:
+#    cmd: 'python {{ jaspar_app_dir }}/deploy/tools/make_secret.py'
+#  register: python_secret
+#  environment:
+#    PYTHONPATH: '{{ pythonpath.stdout }}'
+#
+#- name: Write secret key to file
+#  tags:
+#    - jaspar
+#    - 03-user-django
+#  ansible.builtin.copy:
+#    content: "{{ python_secret }}"
+#    dest: '{{ jaspar_app_dir }}/secret.txt'
+#    owner: '{{ ansible_user }}'
+#
+#- name: Initialise static content
+#  tags:
+#    - jaspar
+#    - 03-user-django
+#  ansible.builtin.command:
+#    cmd: 'python {{ jaspar_app_dir }}/manage.py collectstatic --no-input'
+#  environment:
+#    PYTHONPATH: '{{ pythonpath.stdout }}'

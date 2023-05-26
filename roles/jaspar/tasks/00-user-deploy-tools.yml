@@ -1,0 +1,72 @@
+---
+# tasks file for 00-user-deploy-tools
+
+
+- name: Clone tools repo
+  become: false
+  ansible.builtin.git:
+    repo: '{{ jaspar_tools_git_repo }}'
+    dest: '{{ jaspar_tool_dir }}'
+    version: '{{ jaspar_app_git_version }}'
+
+
+
+- name: Create a common directory for build output
+  ansible.builtin.file:
+    path: '{{ jaspar_tool_dir }}/bin'
+    state: directory
+    owner: '{{ ansible_user }}'
+    mode: u=rwx,g=rx,o=rx
+
+- name: Building matrix aligner
+  ansible.builtin.command:
+    chdir: '{{ jaspar_tool_dir }}/matrixaligner'
+    cmd: 'g++ -o {{ jaspar_tool_dir }}/bin/matrix_aligner matrix_aligner.cc'
+
+- name: Clone PWM randomization
+  ansible.builtin.git:
+    repo: '{{ pwd_random_git_repo }}'
+    dest: '{{ jaspar_tool_dir }}/CSC'
+    version: master
+
+- name: Find .cc files equal for PWM randomization
+  ansible.builtin.find:
+    paths: '{{ jaspar_tool_dir }}/CSC/JASPAR/PWMrandomization/CLHEP/Random/'
+    patterns: '*.cc'
+  register: pwm_cc_file_list
+
+
+- name: Concatenate .cc file into string
+  ansible.builtin.set_fact:
+    pwm_cc_file_str: "{{ pwm_cc_file_list.files | map(attribute='path') | join(' ') | replace('/var/www/apps/jaspar_tools/CSC/JASPAR/PWMrandomization/','') }}"
+
+- name: Building PWM randomization
+  ansible.builtin.command:
+    chdir: '{{ jaspar_tool_dir }}/CSC/JASPAR/PWMrandomization'
+    cmd: 'g++ -o {{ jaspar_tool_dir }}/bin/PWMrandom main.cc {{ pwm_cc_file_str }}'
+
+- name: Clone stamp
+  become: false
+  ansible.builtin.git:
+    repo: '{{ stamp_git_repo }}'
+    dest: '{{ jaspar_tool_dir }}/stamp'
+    version: master
+
+- name: Building PWM randomization
+  ansible.builtin.command:
+    chdir: '{{ jaspar_tool_dir }}/stamp/src'
+    cmd: 'g++ -o {{ jaspar_tool_dir }}/bin/stamp Motif.cpp Alignment.cpp ColumnComp.cpp PlatformSupport.cpp PlatformTesting.cpp Tree.cpp NeuralTree.cpp MultipleAlignment.cpp RandPSSMGen.cpp ProteinDomains.cpp main.cpp -lm -lgsl -lgslcblas'
+
+- name: Set labels for SELinux
+  become: true
+  community.general.sefcontext:
+    target: '{{ jaspar_tool_dir }}/bin(/.*)?'
+    setype: bin_t
+    ftype: 'a'
+    state: present
+
+- name: Apply the labelling for SELinux
+  become: true
+  ansible.builtin.command:
+     cmd: 'restorecon -R {{ jaspar_tool_dir }}/bin'
+

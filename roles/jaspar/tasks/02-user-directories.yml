@@ -1,0 +1,33 @@
+---
+# tasks file for 02-user-hmmer
+
+
+#TODO: Ansiblelized script ?
+- name: Initialise directories.
+  become: false
+  ansible.builtin.command:
+    cmd: '{{ jaspar_app_dir }}/deploy/02-user-directories.sh'
+    chdir: '{{ jaspar_app_dir }}'
+#
+#- name: Make temp directory
+#  tags:
+#    - jaspar
+#    - 02-user-directories
+#  ansible.builtin.file:
+#    state: directory
+#    path: '{{ jaspar_app_dir }}/temp'
+#    owner: '{{ ansible_user }}'
+#    mode: u=rwx,g=rx,o=rx
+#
+#- name: set an ACL for Apache.
+#  tags:
+#    - jaspar
+#    - 02-user-directories
+#    - ACL-permission
+#  ansible.posix.acl:
+#    path: '{{ jaspar_app_dir }}/temp'
+#    entity: '{{ apache_user }}'
+#    etype: user
+#    permissions: rwx
+#    state: present
+#

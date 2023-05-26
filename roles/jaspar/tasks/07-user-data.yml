@@ -1,0 +1,21 @@
+---
+# tasks file for 07-user-data
+
+#TODO: Ansiblelized script ?
+- name: Run tools to update each database with extra data from the data directory.
+  become: false
+  ansible.builtin.command:
+    cmd: '{{ jaspar_app_dir }}/deploy/07-user-data.sh'
+    chdir: '{{ jaspar_app_dir }}'
+
+##TODO: Ansiblelized inseide script ?
+#
+#- name: Moved database dump functionality into a separate tool
+#  tags:
+#    - jaspar
+#    - 07-user-data
+#  become: false
+#  ansible.builtin.command:
+#    cmd: '{{ jaspar_app_dir }}/deploy/tools/import_data {{ item }}'
+#    chdir: '{{ jaspar_app_dir }}'
+#  loop: '{{ jaspar_sqlite.files  | map(attribute="path") }}'
