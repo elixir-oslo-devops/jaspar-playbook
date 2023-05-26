@@ -8,4 +8,6 @@
 - name: Set up Jaspar
   hosts: ansible-dev
   roles:
-    - jaspar
+    - role: jaspar
+      tags:
+        - jaspar
