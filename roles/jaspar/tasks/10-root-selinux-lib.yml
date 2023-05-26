@@ -1,0 +1,9 @@
+---
+# tasks file for 10-root-selinux-lib
+
+#TODO: Ansiblelized script ?
+- name: Initialise directories for the installed libraries.
+  become: true
+  ansible.builtin.command:
+    cmd: '{{ jaspar_app_dir }}/deploy/10-root-selinux-lib.sh'
+    chdir: '{{ jaspar_app_dir }}'
