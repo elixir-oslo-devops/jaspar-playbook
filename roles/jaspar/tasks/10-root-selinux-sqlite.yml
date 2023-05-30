@@ -1,9 +1,49 @@
 ---
 # tasks file for 10-root-selinux-sqlite
 
-#TODO: Ansiblelized script ?
-- name: Set permissions on the application directory for SQLite write access.
+##TODO: Ansiblelized script ?
+#- name: Set permissions on the application directory for SQLite write access.
+#  become: true
+#  ansible.builtin.command:
+#    cmd: '{{ jaspar_app_dir }}/deploy/10-root-selinux-sqlite.sh'
+#    chdir: '{{ jaspar_app_dir }}'
+#
+
+
+
+- name: List temp directory
+  tags:
+    - selinux
+  ansible.builtin.find:
+    path: '{{ jaspar_app_dir }}/temp'
+    file_type: directory
+  register: jaspar_temp
+
+- name: Set permissions for temp directory write access
+  tags:
+    - selinux
+  become: true
+  community.general.sefcontext:
+    target: '{{ jaspar_app_dir }}/{{ item | basename }}'
+    setype: httpd_sys_rw_content_t
+    ftype: a
+    state: present
+  loop: '{{ jaspar_temp.files  | map(attribute="path") }}'
+
+
+- name: Restore default SELinux security contexts for temp
+  tags:
+    - selinux
   become: true
   ansible.builtin.command:
-    cmd: '{{ jaspar_app_dir }}/deploy/10-root-selinux-sqlite.sh'
-    chdir: '{{ jaspar_app_dir }}'
+    cmd: 'restorecon -R {{ jaspar_app_dir }}/{{ item | basename }}'
+  loop: '{{ jaspar_temp.files  | map(attribute="path") }}'
+
+
+- name: Restore default SELinux security contexts for static dir
+  tags:
+    - selinux
+  become: true
+  ansible.builtin.command:
+    cmd: 'restorecon -R {{ jaspar_app_dir }}/static'
+
