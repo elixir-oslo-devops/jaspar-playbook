@@ -7,7 +7,7 @@
   ansible.builtin.command:
     cmd: '{{ jaspar_app_dir }}/deploy/02-user-profile-inference.sh'
     chdir: '{{ jaspar_app_dir }}'
-
+#
 #- name: Make profile-inference for each version
 #  tags:
 #    - jaspar

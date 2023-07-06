@@ -1,13 +1,16 @@
 - name: Set up NREC server for all hosts
   hosts: localhost
   roles:
-    - role: 'ansible-role-setup-nrec'
-      server_name: 'ansible-dev'
+    - role: /Users/jeannech/PycharmProjects/ansible-role-setup-nrec
+      server_name: 'jaspar-dev'
+
 
 
 - name: Set up Jaspar
-  hosts: ansible-dev
+  hosts: jaspar-dev
   roles:
+#    - role: /Users/jeannech/PycharmProjects/ansible-role-setup-user
+#      tags: ldap
     - role: jaspar
       tags:
         - jaspar

@@ -1,83 +1,83 @@
 ---
 # tasks file for 05-user-changelog
 
+#
+##TODO: Ansiblelized script ?
+#- name: Obtain any data location and use that instead of the default.
+#  become: false
+#  ansible.builtin.command:
+#    cmd: '{{ jaspar_app_dir }}/deploy/05-user-changelog.sh'
+#    chdir: '{{ jaspar_app_dir }}'
 
-#TODO: Ansiblelized script ?
-- name: Obtain any data location and use that instead of the default.
-  become: false
-  ansible.builtin.command:
-    cmd: '{{ jaspar_app_dir }}/deploy/05-user-changelog.sh'
-    chdir: '{{ jaspar_app_dir }}'
 
-#
-#- name: List Jaspar changelog
-#  tags:
-#    - jaspar
-#    - 05-user-changelog
-#  ansible.builtin.find:
-#    paths: '{{ jaspar_data_dir }}'
-#    file_type: file
-#    patterns: 'changelog_*.html'
-#    exclude: '*revised*'
-#  register: jaspar_changelog
-#
-#
-#- name: List Jaspar changelog revised
-#  tags:
-#    - jaspar
-#    - 05-user-changelog
-#  ansible.builtin.find:
-#    paths: '{{ jaspar_data_dir }}'
-#    file_type: file
-#    patterns: 'changelog_*_revised.html'
-#  register: jaspar_changelog_revised
-#
-#- name: Setting host facts using complex arguments
-#  tags:
-#    - jaspar
-#    - 05-user-changelog
-#  ansible.builtin.set_fact:
-#    changelog_overriden_list: '{{ jaspar_changelog_revised.files | map(attribute="path") | map("regex_replace", "_revised\.html$", ".html") | list }}'
-#
-#
-#- name: Copy unrevised changelog
-#  tags:
-#    - jaspar
-#    - 05-user-changelog
-#  ansible.builtin.copy:
-#    src: '{{ item.path }}'
-#    dest: '{{ jaspar_app_dir }}/portal/templates/portal/changelogs/'
-#    remote_src: true
-#  when: item.path not in changelog_overriden_list
-#  loop: '{{ jaspar_changelog.files }}'
-#
-#- name: Copy revised changelog
-#  tags:
-#    - jaspar
-#    - 05-user-changelog
-#  ansible.builtin.copy:
-#    src: '{{ item.path }}'
-#    dest: '{{ jaspar_app_dir }}/portal/templates/portal/changelogs/{{ item.path | basename | regex_replace("_revised\.html$", ".html")}}'
-#    remote_src: true
-#  loop: '{{ jaspar_changelog_revised.files }}'
-#
-#
-#- name: List Jaspar changelog manifest
-#  tags:
-#    - jaspar
-#    - 05-user-changelog
-#  ansible.builtin.find:
-#    paths: '{{ jaspar_app_dir }}/portal/templates/portal/changelogs/'
-#    file_type: file
-#  register: jaspar_changelog_manifest
-#
-#
-#- name: Regenerate the changelog manifest
-#  tags:
-#    - jaspar
-#    - 05-user-changelog
-#  ansible.builtin.lineinfile:
-#    path: '{{ jaspar_app_dir }}/portal/templates/portal/changelogs.html'
-#    line: '{% raw %}{%{% endraw %} include "portal/changelogs/{{ item }}" {% raw %}%}{% endraw %}'
-#    create: true
-#  loop: '{{ jaspar_changelog_manifest.files  | map(attribute="path") | map("basename") }}'
+- name: List Jaspar changelog
+  tags:
+    - jaspar
+    - 05-user-changelog
+  ansible.builtin.find:
+    paths: '{{ jaspar_data_dir }}'
+    file_type: file
+    patterns: 'changelog_*.html'
+    exclude: '*revised*'
+  register: jaspar_changelog
+
+
+- name: List Jaspar changelog revised
+  tags:
+    - jaspar
+    - 05-user-changelog
+  ansible.builtin.find:
+    paths: '{{ jaspar_data_dir }}'
+    file_type: file
+    patterns: 'changelog_*_revised.html'
+  register: jaspar_changelog_revised
+
+- name: Setting host facts using complex arguments
+  tags:
+    - jaspar
+    - 05-user-changelog
+  ansible.builtin.set_fact:
+    changelog_overriden_list: '{{ jaspar_changelog_revised.files | map(attribute="path") | map("regex_replace", "_revised\.html$", ".html") | list }}'
+
+
+- name: Copy unrevised changelog
+  tags:
+    - jaspar
+    - 05-user-changelog
+  ansible.builtin.copy:
+    src: '{{ item.path }}'
+    dest: '{{ jaspar_app_dir }}/portal/templates/portal/changelogs/'
+    remote_src: true
+  when: item.path not in changelog_overriden_list
+  loop: '{{ jaspar_changelog.files }}'
+
+- name: Copy revised changelog
+  tags:
+    - jaspar
+    - 05-user-changelog
+  ansible.builtin.copy:
+    src: '{{ item.path }}'
+    dest: '{{ jaspar_app_dir }}/portal/templates/portal/changelogs/{{ item.path | basename | regex_replace("_revised\.html$", ".html")}}'
+    remote_src: true
+  loop: '{{ jaspar_changelog_revised.files }}'
+
+
+- name: List Jaspar changelog manifest
+  tags:
+    - jaspar
+    - 05-user-changelog
+  ansible.builtin.find:
+    paths: '{{ jaspar_app_dir }}/portal/templates/portal/changelogs/'
+    file_type: file
+  register: jaspar_changelog_manifest
+
+
+- name: Regenerate the changelog manifest
+  tags:
+    - jaspar
+    - 05-user-changelog
+  ansible.builtin.lineinfile:
+    path: '{{ jaspar_app_dir }}/portal/templates/portal/changelogs.html'
+    line: '{% raw %}{%{% endraw %} include "portal/changelogs/{{ item }}" {% raw %}%}{% endraw %}'
+    create: true
+  loop: '{{ jaspar_changelog_manifest.files  | map(attribute="path") | map("basename") }}'
