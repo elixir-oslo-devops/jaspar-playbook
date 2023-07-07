@@ -4,6 +4,8 @@
 #    - role: /Users/jeannech/PycharmProjects/ansible-role-setup-nrec
     - role: ansible-role-setup-nrec
       server_name: 'jaspar-dev'
+      tags:
+        - nrec
 
 
 
