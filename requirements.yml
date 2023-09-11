@@ -2,7 +2,7 @@
 roles:
   - role: ansible-role-setup-nrec
     src: ssh://git@github.com/elixir-oslo-devops/ansible-role-setup-nrec.git
-    version: main
+    version: dev-jaspar
     scm: git
 
 collections:
