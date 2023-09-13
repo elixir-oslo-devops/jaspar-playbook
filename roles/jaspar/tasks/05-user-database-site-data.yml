@@ -40,10 +40,10 @@
 
 #TODO: Handle the wildcard case.
 
-#- name: Add existing site data to the database
-#  tags:
-#    - jaspar
-#    - 05-user-database-site-data
-#  become: false
-#  ansible.builtin.shell: 'sqlite3 {{ item }} < {{ jaspar_data_dir }}/jaspar-site-data-{{ current_database }}.sql'
-#  loop: '{{ jaspar_sqlite.files  | map(attribute="path") }}'
+- name: Add existing site data to the database
+  tags:
+    - jaspar
+    - 05-user-database-site-data
+  become: false
+  ansible.builtin.shell: 'sqlite3 {{ item }} < {{ jaspar_data_dir }}/jaspar-site-data-{{ current_database }}.sql'
+  loop: '{{ jaspar_sqlite.files  | map(attribute="path") }}'
