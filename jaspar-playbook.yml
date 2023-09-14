@@ -1,8 +1,10 @@
 # tasks file for setup-nrec
 - hosts: localhost
+  vars:
+    server_name: ansible-test4
+    host_name: test4.jaspar.uiocloud.no
   roles:
     - setup-nrec
-
 
 - hosts: all
 #- hosts: test2.jaspar.uiocloud.no
@@ -17,5 +19,3 @@
 #  any_errors_fatal: true
 #  roles:
 #    - jaspar
-
-

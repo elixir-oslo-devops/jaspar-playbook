@@ -15,3 +15,6 @@ sef_httpd_content:
  - '{{ jaspar_app }}/static/'
  - '{{ jaspar_app }}/templates/'
  - '{{ jaspar_app }}/utils/'
+
+sef_lib_t_content:
+ - '{{ jaspar_app }}/lib/'

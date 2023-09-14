@@ -18,7 +18,8 @@
   tags: keypair
   ansible.builtin.copy:
     content: '{{ keypair_result.keypair.private_key }}'
-    dest: '.ssh/{{ keypair_result.keypair.name }}.pem'
+    #dest: '.ssh/{{ keypair_result.keypair.name }}.pem'
+    dest: '{{ hostvars[host_name].ansible_ssh_private_key_file }}'
     mode: '0600'
     backup: yes
   when: keypair_result.changed and keypair_result.keypair is defined
@@ -116,9 +117,20 @@
 
 
 
-
 # Wait for server to finish setting up
 - name: Wait 300 seconds, but only start checking after 60 seconds
   wait_for_connection:
     delay: 60
     timeout: 300
+
+- name: Add server IP to DNS zone
+  openstack.cloud.recordset:
+    state: present
+    zone: '{{ hostvars[host_name].ansible_dns }}'
+    name: '{{ host_name }}.'
+    recordset_type: "a"
+    records: ['{{ instance_result.server.addresses.dualStack | selectattr("version", "eq", 4) | map(attribute="addr") | first }}']
+    description: test recordset
+    ttl: 3600
+  #with_dict: '{{ hostvars }}'
+
