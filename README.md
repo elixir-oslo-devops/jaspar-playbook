@@ -15,17 +15,3 @@ Hint: Don't forget to configure your local `~/.ssh/config` files:
         Port 22
         IdentityFile ~/.ssh/id_rsa
 
-
-## Set up Jenkins: manual steps
-
-### Set up agent
-
-https://www.jenkins.io/doc/book/security/controller-isolation/
-
-1. Disable running jons on built-in nodes.
-  
-
-
-    To prevent builds from running on the built-in node directly, navigate to Manage Jenkins » Nodes and Clouds. 
-    Select Built-In Node in the list, then select Configure in the menu. Set the number of executors to 0 and save. 
-    Make sure to also set up clouds or build agents to run builds on, otherwise builds won’t be able to start.
