@@ -3,6 +3,7 @@
 - name: Install EPEL repo
   tags:
     - jaspar
+    - initialization
   become: true
   ansible.builtin.dnf:
     name: epel-release
@@ -10,126 +11,52 @@
   when: ansible_user == 'rocky'
 
 
-- name: Install prerequisite
+- name: Install packages
+  become: true
   tags:
     - jaspar
-  become: true
+    - initialization
   ansible.builtin.package:
-    name: '{{ item }}'
     state: present
     update_cache: true
-  loop:
-    - mod_ssl
-    - git
-    - acl
-    - certbot
-    - httpd
-    - mod_ssl
-    - python3
-    - python3-certbot-apache
-    - python3-mod_wsgi
-    - sqlite
-    - wget
-    - which
-  when: ansible_user == 'rocky'
+    name:
+      - git
+      - httpd
+      - certbot
+      - python3-certbot-apache
+      - wget
 
-- name: Make base directory
+- name: Gather the package facts
   tags:
     - jaspar
     - initialization
-  become: true
-  ansible.builtin.file:
-    state: directory
-    path: '{{ jaspar_app_dir }}'
-    owner: '{{ ansible_user }}'
-    mode: '0755'
-    recurse: false
+  ansible.builtin.package_facts:
+    manager: auto
 
-- name: Clone main repo
+- name: "Searching for a String"
   tags:
     - jaspar
-    - initialization
-  become: false
-  ansible.builtin.git:
-    repo: '{{ jaspar_app_git_repo }}'
-    dest: '{{ jaspar2020_dir }}'
-    version: '{{ jaspar_app_git_version }}'
-    update: false
-    force: false
-
-- name: Clone branding repo
-  tags:
-    - jaspar
-    - initialization
-  become: false
-  ansible.builtin.git:
-    repo: '{{ jaspar_branding_git_repo }}'
-    dest: '{{ jaspar_app_dir }}/jaspar-branding'
-    version: master
-
-- name: Make data directory
-  tags:
-    - jaspar
-    - initialization
-  become: true
-  ansible.builtin.file:
-    state: directory
-    path: '{{ jaspar_data_dir }}'
-    owner: '{{ ansible_user }}'
-    mode: '0755'
-    recurse: false
-
-- name: Fetch JASPAR data
-  tags:
-    - jaspar
-    - initialization
-#  become: true
-  ansible.builtin.command:
-    cmd: 'wget -r -nv -nc -nd -np -l 1 --no-check-certificate -e robots=off -P {{ jaspar_data_dir }} {{ jaspar_data_url }} '
-  register: wget_result
-  changed_when: '"Downloaded:" in wget_result.stderr'
-
-
-#==============================================
-# 00-root-packages.sh
-#==============================================
-
-- name: Install prerequisite
-  tags:
-    - jaspar
-    - 00-root-packages
-  become: true
-  ansible.builtin.package:
-    name: '{{ item }}'
+    - miniconda
+  lineinfile:
+    path: '/home/{{ ansible_user }}/.bashrc'
+    regexp: "/home/{{ ansible_user }}/miniconda/bin"
+    line: 'PATH=$PATH:/home/{{ ansible_user }}/miniconda/bin'
     state: present
-    update_cache: true
-  loop:
-    - acl
-    - certbot
-    - cpio
-    - gcc
-    - gcc-c++
-    - gzip
-    - libcurl-devel
-    - libxml2-devel
-    - make
-    - openssl-devel
-    - patch
-    - perl-interpreter
-    - python3
-    - python3-certbot-apache
-    - python3-devel
-    - python3-pip
-    - python3-mod_wsgi
-    - sqlite
-    - wget
-    - which
-  when: ansible_user == 'rocky'
+  check_mode: yes
+  register: presence
+
+- name: "Searching for a String"
+  tags:
+    - jaspar
+    - miniconda
+  ansible.builtin.debug:
+    msg: '{{ presence }}'
 
 - name: Install miniconda
   tags:
     - jaspar
-    - 00-root-packages
+    - initialization
+    - miniconda
   block:
     - name: downloading installation script
       ansible.builtin.get_url:
@@ -145,218 +72,508 @@
         path:  '/home/{{ ansible_user }}/.bashrc'
         line: 'PATH=$PATH:/home/{{ ansible_user }}/miniconda/bin'
         create: yes
+  when: 'presence.changed == true'
 
-- name: "Searching for a String"
+
+- name: Configure conda
   tags:
     - jaspar
-  lineinfile:
-    path: '/home/{{ ansible_user }}/.bashrc'
-    line: "# >>> conda initialize >>> debug"
-    state: present
-  check_mode: yes
-  register: presence
-
-- name: Init miniconda
-  tags:
-    - jaspar
-    - 00-root-packages
-  ansible.builtin.command:
-    cmd: 'conda init'
-  when: presence is changed
-
-#==============================================
-# 00-user-deploy-tools.sh
-#==============================================
-
-- name: Clone tools repo
-  tags:
-    - jaspar
-    - 00-user-deploy-tools
-  become: false
-  ansible.builtin.git:
-    repo: '{{ jaspar_tools_git_repo }}'
-    dest: '{{ jaspar_tool_dir }}'
-    version: '{{ jaspar_app_git_version }}'
+    - initialization
+    - miniconda
+  block:
+    - name: Add default channel
+      ansible.builtin.command:
+        cmd: 'conda config --add channels defaults'
+    - name: Add bioconda channel
+      ansible.builtin.command:
+        cmd: 'conda config --add channels bioconda'
+    - name: Add conda-forge channel
+      ansible.builtin.command:
+        cmd: 'conda config --add channels conda-forge'
+    - name: Add conda-forge channel
+      ansible.builtin.command:
+        cmd: 'conda config --set auto_activate_base false'
 
 
-- name: Install packages for tools
-  tags:
-    - jaspar
-    - 00-user-deploy-tools
+- name: Make base directory
   become: true
-  ansible.builtin.dnf:
-    state: present
-    name:
-      - gcc-c++
-      - git
-      - gsl-devel
-    enablerepo: devel
-  when: ansible_user == 'rocky'
-
-
-- name: Create a common directory for build output
   tags:
     - jaspar
-    - 00-user-deploy-tools
-  ansible.builtin.file:
-    path: '{{ jaspar_bin_dir }}'
-    state: directory
-    owner: '{{ ansible_user }}'
-    mode: '0755'
-
-- name: Building matrix aligner
-  tags:
-    - jaspar
-    - 00-user-deploy-tools
-  ansible.builtin.command:
-    chdir: '{{ jaspar_tool_dir }}/matrixaligner'
-    cmd: 'g++ -o {{ jaspar_bin_dir }}/matrix_aligner matrix_aligner.cc'
-
-- name: Clone PWM randomization
-  tags:
-    - jaspar
-    - 00-user-deploy-tools
-  ansible.builtin.git:
-    repo: '{{ jaspar_pwd_random_git_repo }}'
-    dest: '{{ jaspar_tool_dir }}/CSC'
-    version: master
-
-- name: Find .cc files equal for PWM randomization
-  tags:
-    - jaspar
-    - 00-user-deploy-tools
-  ansible.builtin.find:
-    paths: '{{ jaspar_tool_dir }}/CSC/JASPAR/PWMrandomization/CLHEP/Random/'
-    patterns: '*.cc'
-  register: pwm_cc_file_list
-
-
-- name: Concatenate .cc file into string
-  tags:
-    - jaspar
-    - 00-user-deploy-tools
-  ansible.builtin.set_fact:
-    pwm_cc_file_str: "{{ pwm_cc_file_list.files | map(attribute='path') | join(' ') | replace('/var/www/apps/jaspar_tools/CSC/JASPAR/PWMrandomization/','') }}"
-
-- name: Building PWM randomization
-  tags:
-    - jaspar
-    - 00-user-deploy-tools
-  ansible.builtin.command:
-    chdir: '{{ jaspar_tool_dir }}/CSC/JASPAR/PWMrandomization'
-    cmd: 'g++ -o {{ jaspar_bin_dir }}/PWMrandom main.cc {{ pwm_cc_file_str }}'
-
-- name: Clone stamp
-  tags:
-    - jaspar
-    - 00-user-deploy-tools
-  become: false
-  ansible.builtin.git:
-    repo: '{{ jaspar_stamp_git_repo }}'
-    dest: '{{ jaspar_tool_dir }}/stamp'
-    version: master
-
-- name: Building PWM randomization
-  tags:
-    - jaspar
-    - 00-user-deploy-tools
-  ansible.builtin.command:
-    chdir: '{{ jaspar_tool_dir }}/stamp/src'
-    cmd: 'g++ -o {{ jaspar_bin_dir }}/stamp Motif.cpp Alignment.cpp ColumnComp.cpp PlatformSupport.cpp PlatformTesting.cpp Tree.cpp NeuralTree.cpp MultipleAlignment.cpp RandPSSMGen.cpp ProteinDomains.cpp main.cpp -lm -lgsl -lgslcblas'
-
-- name: Set labels for SELinux
-  tags:
-    - jaspar
-    - 00-user-deploy-tools
-  become: true
-  community.general.sefcontext:
-    target: '{{ jaspar_bin_dir }}(/.*)?'
-    setype: bin_t
-    ftype: 'a'
-    state: present
-
-- name: Apply the labelling for SELinux
-  tags:
-    - jaspar
-    - 00-user-deploy-tools
-  become: true
-  ansible.builtin.command:
-     cmd: 'restorecon -R {{ jaspar_bin_dir}}'
-
-
-#==============================================
-# 00-user-site.sh
-#==============================================
-
-- name: Make work directory
-  tags:
-    - jaspar
-    - settings
-  become: true
+    - initialization
   ansible.builtin.file:
     state: directory
-    path: '{{ jaspar2020_dir }}/deploy/work'
+    path: '{{ jaspar_base_dir }}'
     owner: '{{ ansible_user }}'
     mode: '0755'
     recurse: false
 
-- name: Make a symbolic link to the secure site definition
-  tags:
-    - jaspar
-    - 00-user-site
-  ansible.builtin.template:
-    src: 'files/site.conf-ssl'
-    dest: '{{ jaspar2020_dir }}/deploy/conf/{{ ansible_ssh_host }}.conf-ssl'
-
-
-
-#==============================================
-# 01-user-dependencies.sh
-#==============================================
-
-- name: Create conda environment with correct package
-  tags:
-    - jaspar
-    - 01-user-dependencies
-  ansible.builtin.command:
-    cmd: 'conda create -c defaults -c conda-forge -c bioconda -y -p {{ jaspar_base_dir }}/{{ jaspar_app }}/lib/usr/local blast hmmer'
-
-
-- name: Add another bin dir to system-wide $PATH.
-  tags:
-    - jaspar
-    - 01-user-dependencies
+- name: Make data directory
   become: true
-  ansible.builtin.lineinfile:
-    path: /etc/profile.d/custom-path.sh
-    line: 'PATH={{ jaspar2020_dir }}/lib/usr/local/bin:$PATH'
-    create: yes
-  when: "ansible_env.PATH is not search( '/var/www/apps/jaspar2020/lib/usr/local/bin')"
-
-
-- name: Install python package
   tags:
     - jaspar
-    - 01-user-dependencies
-  ansible.builtin.pip:
-    extra_args: '--root {{ jaspar2020_dir }}/lib'
+    - initialization
+  ansible.builtin.file:
+    state: directory
+    path: '{{ jaspar_data_dir }}'
+    owner: '{{ ansible_user }}'
+    mode: '0755'
+    recurse: false
+
+- name: Certbot account register
+  become: true
+  tags:
+    - jaspar
+    - initialization
+  ansible.builtin.command:
+    cmd: 'certbot -n register --agree-tos --email {{ admin_email }}'
+    creates: '/etc/letsencrypt/accounts/acme-v02.api.letsencrypt.org/directory/*/regr.json'
+
+- name: Clone main repo
+  tags:
+    - jaspar
+    - initialization
+  ansible.builtin.git:
+    repo: '{{ jaspar_app_git_repo }}'
+    dest: '{{ jaspar_base_dir }}/jaspar2020'
+    version: '{{ jaspar_app_main_git_version }}'
+    update: false
+    force: false
+
+- name: Clone branding repo
+  tags:
+    - jaspar
+    - initialization
+  ansible.builtin.git:
+    repo: '{{ jaspar_branding_git_repo }}'
+    dest: '{{ jaspar_base_dir }}/jaspar-branding'
+    version: master
+
+# Loops through list of files/dirs to label, using regex to create regex.
+# Takes a minute, probably due to checking the state of every item.
+# Creates SSH connection for every iteration?
+- name: Set SELinux file context for httpd
+  tags:
+    - jaspar
+    - initialization
+  become: true
+  community.general.sefcontext:
+    target: '{{ jaspar_base_dir }}/{{ item | regex_replace("/$", "(/.*)?") }}'
+    setype: httpd_sys_content_t
+    state: present
+  loop: '{{ sef_httpd_content }}'
+  register: sefcontext
+  notify: Apply SELinux file contexts
+
+# builtin.get_url not appear to support recursive download
+- name: Fetch JASPAR data
+  tags:
+    - jaspar
+    - initialization
+  ansible.builtin.command:
+    cmd: 'wget -r -nv -nc -nd -np -l 1 --no-check-certificate -e robots=off -P {{ jaspar_data_dir }} {{ jaspar_data_url }} '
+  register: wget_result
+  changed_when: '"Downloaded:" in wget_result.stderr'
+
+- name: SMTP settings file
+  become: true
+  tags:
+    - jaspar
+    - initialization
+  ansible.builtin.template:
+    src: templates/smtp_settings.txt.j2
+    dest: '{{ jaspar_base_dir }}/jaspar2020/smtp_settings.txt'
+    owner: '{{ jaspar_user }}'
+    group: apache
+    mode: '0640'
+
+- name: Update settings
+  tags:
+    - jaspar
+    - initialization
+  ansible.builtin.replace:
+    path: '{{ jaspar_base_dir }}/jaspar2020/jaspar/settings.py'
+    regexp: '^{{ item.setting }} = .+'
+    replace: '{{ item.setting }} = {{ item.value }}'
+  loop:
+    - { setting: 'SEND_TO_EMAIL', value: "'{{ admin_email }}'" }
+    - { setting: 'TIME_ZONE', value: "'CET'" }
+
+#==============================================
+# initial privileged deploy scripts
+#==============================================
+
+#==============================================
+# 00-root-packages.sh
+#==============================================
+
+- name: Install prerequisite
+  tags:
+    - 00-root-packages
+  become: true
+  ansible.builtin.package:
     name:
-      - bootstrap-admin
-      - biopython==1.76
-      - coreapi
-      - django==2.2.17
-      - django-filter
-      - django-bootstrap-form
-      - django_compressor
-      - django-debug-toolbar
-      - django-recaptcha
-      - django-rest-framework
-      - django-rest-swagger
-      - djangorestframework-jsonp
-      - djangorestframework-yaml
-      - markdown
-      - numpy
-      - pandas
-      - pygments
-      - scipy
-      - tqdm
+      - acl
+      - cpio
+      - gcc
+      - gcc-c++
+      - git
+      - gsl-devel
+      - gzip
+      - libcurl-devel
+      - libxml2-devel
+      - make
+      - openssl-devel
+      - patch
+      - perl-interpreter
+      - python3-devel
+      - python3-pip
+      - python3-mod_wsgi
+      - sqlite
+      - wget
+      - which
+    state: present
+    update_cache: true
+  when: ansible_user == 'rocky'
+
+
+
+
+- name: 00-user-deploy-tools
+  include_tasks:
+      file: 00-user-deploy-tools.yml
+      apply:
+        tags:
+          - 00-user-deploy-tools
+  when: unprivileged|bool == true
+
+
+
+
+- name: 00-user-site
+  include_tasks:
+      file: 00-user-site.yml
+      apply:
+        tags:
+          - 00-user-site
+  when: unprivileged|bool == true
+
+
+#
+## Installs system packages. Can easily be ansified.
+#- name: Run initial privileged deploy scripts
+#  tags:
+#    - jaspar
+#    - deploy-init
+#  ansible.builtin.command:
+#    cmd: '{{ jaspar_app_dir }}/deploy.sh -i -- -s {{ jaspar_hostname }} -d {{ jaspar_data_dir }} -S'
+#    creates: '{{ jaspar_app_dir }}/deploy-logs/00-root-packages.sh'
+#
+
+
+
+#==============================================
+# unprivileged deploy scripts
+#==============================================
+
+
+- name: 01-user-dependencies
+  include_tasks:
+      file: 01-user-dependencies.yml
+      apply:
+        tags:
+          - 01-user-dependencies
+  when: unprivileged|bool == true
+
+
+- name: 02-user-blast
+  include_tasks:
+      file: 02-user-blast.yml
+      apply:
+        tags:
+          - 02-user-blast
+  when: unprivileged|bool == true
+
+
+- name: 02-user-branding
+  include_tasks:
+      file: 02-user-branding.yml
+      apply:
+        tags:
+          - 02-user-branding
+  when: unprivileged|bool == true
+
+
+- name: 02-user-directories
+  include_tasks:
+      file: 02-user-directories.yml
+      apply:
+        tags:
+          - 02-user-directories
+  when: unprivileged|bool == true
+
+
+- name: 02-user-hmmer
+  include_tasks:
+      file: 02-user-hmmer.yml
+      apply:
+        tags:
+          - 02-user-hmmer
+  when: unprivileged|bool == true
+
+
+- name: 02-user-profile-inference
+  include_tasks:
+      file: 02-user-profile-inference.yml
+      apply:
+        tags:
+          - 02-user-profile-inference
+  when: unprivileged|bool == true
+
+
+- name: 03-user-django
+  include_tasks:
+      file: 03-user-django.yml
+      apply:
+        tags:
+          - 03-user-django
+  when: unprivileged|bool == true
+
+
+- name: 03-user-static-data
+  include_tasks:
+      file: 03-user-static-data.yml
+      apply:
+        tags:
+          - 03-user-static-data
+  when: unprivileged|bool == true
+
+
+- name: 04-user-django-patches
+  include_tasks:
+      file: 04-user-django-patches.yml
+      apply:
+        tags:
+          - 04-user-django-patches
+  when: unprivileged|bool == true
+
+
+- name: 04-user-metadata
+  include_tasks:
+      file: 04-user-metadata.yml
+      apply:
+        tags:
+          - 04-user-metadata
+  when: unprivileged|bool == true
+
+
+- name: 05-user-archetypes
+  include_tasks:
+      file: 05-user-archetypes.yml
+      apply:
+        tags:
+          - 05-user-archetypes
+  when: unprivileged|bool == true
+
+
+- name: 05-user-changelog
+  include_tasks:
+      file: 05-user-changelog.yml
+      apply:
+        tags:
+          - 05-user-changelog
+  when: unprivileged|bool == true
+
+
+- name: 05-user-database-site-data
+  include_tasks:
+      file: 05-user-database-site-data.yml
+      apply:
+        tags:
+          - 05-user-database-site-data
+  when: unprivileged|bool == true
+
+- name: 06-user-clustering
+  include_tasks:
+      file: 06-user-clustering.yml
+      apply:
+        tags:
+          - 06-user-clustering
+  when: unprivileged|bool == true
+
+
+- name: 06-user-database-downloads
+  include_tasks:
+      file: 06-user-database-downloads.yml
+      apply:
+        tags:
+          - 06-user-database-downloads
+  when: unprivileged|bool == true
+
+
+- name: 06-user-sqlite-apache
+  include_tasks:
+      file: 06-user-sqlite-apache.yml
+      apply:
+        tags:
+          - 06-user-sqlite-apache
+  when: unprivileged|bool == true
+
+
+- name: 07-user-data-features
+  include_tasks:
+      file: 07-user-data-features.yml
+      apply:
+        tags:
+          - 07-user-data-features
+  when: unprivileged|bool == true
+
+
+- name: 07-user-data
+  include_tasks:
+      file: 07-user-data.yml
+      apply:
+        tags:
+          - 07-user-data
+  when: unprivileged|bool == true
+
+- name: 07-user-downloads
+  include_tasks:
+      file: 07-user-downloads.yml
+      apply:
+        tags:
+          - 07-user-downloads
+  when: unprivileged|bool == true
+
+## Time: ca 5 min
+#- name: Run unprivileged deploy scripts
+#tags:
+#  - jaspar
+#  - deploy-user
+#ansible.builtin.command:
+#  cmd: '{{ jaspar_app_dir }}/deploy.sh -u -- -s {{ jaspar_hostname }} -d {{ jaspar_data_dir }} -S'
+#  creates: '{{ jaspar_app_dir }}/deploy-logs/07-user-downloads.sh'
+
+#==============================================
+# final privileged deploy scripts
+#==============================================
+
+
+- name: 10-root-selinux-captcha
+  include_tasks:
+      file: 10-root-selinux-captcha.yml
+      apply:
+        tags:
+          - 10-root-selinux-captcha
+  when: final_privileged|bool == true
+
+- name: 10-root-selinux-lib
+  include_tasks:
+    file: 10-root-selinux-lib.yml
+    apply:
+      tags:
+        - 10-root-selinux-lib
+  when: final_privileged|bool == true
+
+
+- name: 10-root-selinux-sqlite
+  include_tasks:
+    file: 10-root-selinux-sqlite.yml
+    apply:
+      tags:
+        - 10-root-selinux-sqlite
+  when: final_privileged|bool == true
+
+- name: 10-root-selinux
+  include_tasks:
+    file: 10-root-selinux.yml
+    apply:
+      tags:
+        - 10-root-selinux
+  when: final_privileged|bool == true
+
+- name: 11-root-httpd
+  include_tasks:
+     file: 11-root-httpd.yml
+     apply:
+       tags:
+         - 11-root-httpd
+  when: final_privileged|bool == true
+
+- name: Set SELinux file context for lib
+  tags:
+    - finalization
+  become: true
+  community.general.sefcontext:
+    target: '{{ item | regex_replace("/$", "(/.*)?") }}'
+    setype: lib_t
+    state: present
+  loop: '{{ sef_lib_t_content }}'
+  register: sefcontext
+  notify: Apply SELinux file contexts
+
+- name: Set SELinux file context for bin
+  tags:
+    - finalization
+  become: true
+  community.general.sefcontext:
+    target: '{{ item | regex_replace("/$", "(/.*)?") }}'
+    setype: bin_t
+    state: present
+  loop: '{{ sef_bin_t_content }}'
+  register: sefcontext
+  notify: Apply SELinux file contexts
+
+- name: Set SELinux file context for httpd_sys_rw_content_t
+  tags:
+    - finalization
+  become: true
+  community.general.sefcontext:
+    target: '{{ item | regex_replace("/$", "(/.*)?") }}'
+    setype: bin_t
+    state: present
+  loop: '{{ sef_httpd_sys_rw_content_t_content }}'
+  register: sefcontext
+  notify: Apply SELinux file contexts
+
+- name: Restart stuff
+  tags:
+    - finalization
+  ansible.builtin.debug:
+    msg: 'Restart stuff'
+  notify:
+    - Restore SELinux file contexts
+    - Restart httpd
+    - Run tests
+
+
+- name: Restore SELinux file contexts
+  tags:
+    - selinux
+  become: true
+  ansible.builtin.command: 'restorecon -Rv {{ jaspar_base_dir }}'
+
+
+- name: Restart httpd
+  tags:
+    - apache
+  become: true
+  ansible.builtin.systemd:
+    name: httpd.service
+    state: restarted
+
+#
+#
+## Time: ca 2 min
+#- name: Run final privileged deploy scripts
+#  tags:
+#    - jaspar
+#    - deploy-final
+#  ansible.builtin.command:
+#    cmd: '{{ jaspar_app_dir }}/deploy.sh -f -- -s {{ jaspar_hostname }} -d {{ jaspar_data_dir }} -S'
+#    creates: '{{ jaspar_app_dir }}/deploy-logs/11-root-httpd.sh'
+#  notify:
+#    - Restore SELinux file contexts
+#    - Restart httpd
+#    - Run tests
+
+
