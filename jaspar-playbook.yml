@@ -6,10 +6,16 @@
   roles:
     - setup-nrec
 
-- hosts: test4.jaspar.uiocloud.no
+- hosts: all
+#- hosts: test2.jaspar.uiocloud.no
   remote_user: rocky
-  become: true
+#  become: true
   roles:
     - setup-volume
+    - jaspar
 
-
+#- hosts: test2.jaspar.uiocloud.no
+##  hosts: test.jaspar.uiocloud.no
+#  any_errors_fatal: true
+#  roles:
+#    - jaspar
