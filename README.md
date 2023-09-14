@@ -4,8 +4,8 @@ To install requirements :
 
 - A GitHub account
 - Access to the following repo:
-  - https://github.com/jCHENEBY/ansible-role-setup-nrec
-  - https://github.com/jCHENEBY/ansible-role-certification
+  - https://github.com/elixir-oslo-devops/ansible-role-setup-nrec
+  - https://github.com/elixir-oslo-devops/ansible-role-certification
 - A SSH access to GitHub (follow GitHub official [documentation](https://docs.github.com/en/authentication/connecting-to-github-with-ssh))
 
 Hint: Don't forget to configure your local `~/.ssh/config` files:
