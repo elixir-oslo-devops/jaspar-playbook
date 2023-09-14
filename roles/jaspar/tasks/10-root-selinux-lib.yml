@@ -1,0 +1,60 @@
+---
+# tasks file for 10-root-selinux-lib
+
+##TODO: Ansiblelized script ?
+#- name: Initialise directories for the installed libraries.
+#  become: true
+#  ansible.builtin.command:
+#    cmd: '{{ jaspar_app_dir }}/deploy/10-root-selinux-lib.sh'
+#    chdir: '{{ jaspar_app_dir }}'
+#
+#
+
+- name: Set permissions on the application directory for SQLite write access
+  tags:
+    - selinux
+  become: true
+  community.general.sefcontext:
+    target: '{{ jaspar_app_dir }}'
+    setype: httpd_sys_rw_content_t
+    ftype: a
+    state: present
+
+
+- name: 'Restore {{ jaspar_app_dir }} default SELinux security contexts'
+  tags:
+    - selinux
+  become: true
+  ansible.builtin.command:
+    cmd: 'restorecon {{ jaspar_app_dir }}'
+
+
+- name: List Jaspar sqlite database
+  tags:
+    - selinux
+  ansible.builtin.find:
+    paths: '{{ jaspar_app_dir }}/'
+    file_type: file
+    patterns: JASPAR*sqlite3
+    excludes: '*BACKUP*'
+  register: latest_jaspar_sqlite
+
+
+- name: Set permissions for SQLite write access
+  tags:
+    - selinux
+  become: true
+  community.general.sefcontext:
+    target: '{{ item }}'
+    setype: httpd_sys_rw_content_t
+    ftype: a
+    state: present
+  loop: '{{ latest_jaspar_sqlite.files  | map(attribute="path") }}'
+
+- name: Restore default SELinux security contexts for database
+  tags:
+    - selinux
+  become: true
+  ansible.builtin.command:
+    cmd: 'restorecon {{ item }}'
+  loop: '{{ latest_jaspar_sqlite.files  | map(attribute="path") }}'

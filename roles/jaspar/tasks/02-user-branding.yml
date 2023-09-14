@@ -1,0 +1,32 @@
+---
+# tasks file for 02-user-branding
+
+
+##TODO: Ansiblelized script ?
+#- name: Obtain any logos that can be deployed in place of various placeholder logos.
+#  become: false
+#  ansible.builtin.command:
+#    cmd: '{{ jaspar_app_dir }}/deploy/02-user-branding.sh'
+#    chdir: '{{ jaspar_app_dir }}'
+
+- name: Copy logo in place of various placeholder
+  tags:
+    - jaspar
+    - 02-user-branding
+  ansible.builtin.copy:
+    src: '{{ jaspar_base_dir }}/jaspar-branding/logos/'
+    dest: '{{ jaspar_app_dir }}/portal/static/img/logos/'
+    owner: '{{ ansible_user }}'
+    remote_src: yes
+    force: true
+
+- name: Copy template in place of various placeholder
+  tags:
+    - jaspar
+    - 02-user-branding
+  ansible.builtin.copy:
+    src: '{{ jaspar_base_dir }}/jaspar-branding/templates/'
+    dest: '{{ jaspar_app_dir }}/portal/templates/portal/'
+    owner: '{{ ansible_user }}'
+    remote_src: yes
+    force: true

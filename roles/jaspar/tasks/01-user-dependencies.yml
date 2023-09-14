@@ -1,0 +1,70 @@
+---
+# tasks file for 01-user-dependencies
+
+
+#- name: Make lib directory
+#  tags:
+#    - jaspar
+#    - 01-user-dependencies
+#  ansible.builtin.file:
+#    state: directory
+#    path: '{{ jaspar_app_dir }}/lib'
+#    owner: '{{ ansible_user }}'
+#    mode: u=rwx,g=rx,o=rx
+#
+#- name: Check blast was correctly installed and accessible
+#  tags:
+#    - jaspar
+#    - 02-user-blast
+#  ansible.builtin.command:
+#    cmd: 'which blastp'
+#  register: which_blast
+#  failed_when: which_blast is not regex(jaspar_base_dir)
+#
+#- name: Check hmmer was correctly installed and accessible
+#  tags:
+#    - jaspar
+#    - 02-user-hmmer
+#  ansible.builtin.command:
+#    cmd: 'which nhmmer'
+#  register: which_hmmer
+
+- name: Create conda environment with correct package
+  become: false
+  ansible.builtin.command:
+    cmd: 'conda create -c defaults -c conda-forge -c bioconda -y -p {{ jaspar_app_dir }}/lib/usr/local {{ requirements_conda | join(" ") }}'
+#  when: which_blast is not regex(jaspar_base_dir) and which_hmmer is not regex(jaspar_base_dir)
+
+
+- name: Add another bin dir to system-wide $PATH.
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/profile.d/custom-path.sh
+    line: 'PATH=$PATH:{{ jaspar_app_dir }}/lib/usr/local/bin'
+    create: yes
+  when: "ansible_env.PATH is not search( '/var/www/apps/jaspar2020/lib/usr/local/bin')"
+
+
+- name: Install python package
+  ansible.builtin.pip:
+    extra_args: '--root {{ jaspar_app_dir }}/lib'
+    name:
+      - bootstrap-admin
+      - biopython==1.76
+      - coreapi
+      - django==2.2.17
+      - django-filter
+      - django-bootstrap-form
+      - django_compressor
+      - django-debug-toolbar
+      - django-recaptcha
+      - django-rest-framework
+      - django-rest-swagger
+      - djangorestframework-jsonp
+      - djangorestframework-yaml
+      - markdown
+      - numpy
+      - pandas
+      - pygments
+      - scipy
+      - tqdm

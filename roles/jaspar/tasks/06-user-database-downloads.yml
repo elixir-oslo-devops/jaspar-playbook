@@ -1,0 +1,9 @@
+---
+# tasks file for 06-user-database-downloads
+
+#TODO: Ansiblelized script ?
+- name: Generate database archives.
+  become: false
+  ansible.builtin.command:
+    cmd: '{{ jaspar_app_dir }}/deploy/06-user-database-downloads.sh'
+    chdir: '{{ jaspar_app_dir }}'

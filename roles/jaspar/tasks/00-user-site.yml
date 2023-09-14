@@ -1,0 +1,58 @@
+---
+# tasks file for 00-user-site
+
+
+- name: Make work directory
+  become: true
+  ansible.builtin.file:
+    state: directory
+    path: '{{ jaspar_app_dir }}/deploy/work'
+    owner: '{{ ansible_user }}'
+    mode: u=rwx,g=rx,o=rx
+    recurse: false
+
+
+- name: Create data file
+  ansible.builtin.copy:
+    content: '{{ jaspar_data_dir }}'
+    dest: '{{ jaspar_app_dir }}/deploy/work/data.txt'
+    owner: '{{ ansible_user }}'
+    mode: u=rw,g=r,o=r
+
+- name: Create site file
+  ansible.builtin.copy:
+    content: '{{ ansible_ssh_host }}'
+    dest: '{{ jaspar_app_dir }}/deploy/work/site.txt'
+    owner: '{{ ansible_user }}'
+    mode: u=rw,g=r,o=r
+
+
+- name: Create port file
+  ansible.builtin.copy:
+    content: '{{ jaspar_port }}'
+    dest: '{{ jaspar_app_dir }}/deploy/work/port.txt'
+    owner: '{{ ansible_user }}'
+    mode: u=rw,g=r,o=r
+
+
+
+- name: Make a symbolic link to the secure site definition
+  ansible.builtin.file:
+    src: 'site.conf-ssl'
+    dest: '{{ jaspar_app_dir }}/deploy/conf/{{ ansible_ssh_host }}.conf-ssl'
+    owner: '{{ ansible_user }}'
+    mode: u=rwx,g=rwx,o=rwx
+    state: link
+    force: true
+  when: jaspar_secure|bool  == true
+
+
+- name: Make a symbolic link to  unsecure site definition
+  ansible.builtin.file:
+    src: 'site.conf'
+    dest: '{{ jaspar_app_dir }}/deploy/conf/{{ ansible_ssh_host }}.conf'
+    owner: '{{ ansible_user }}'
+    mode: u=rwx,g=rwx,o=rwx
+    state: link
+    force: true
+  when: jaspar_secure|bool  == false

@@ -1,0 +1,11 @@
+---
+# tasks file for 03-user-static-data
+
+#TODO: Ansiblelized script ?
+#Note: Long process > 6 min
+- name: Define common storage locations.
+  become: false
+  ansible.builtin.command:
+    cmd: '{{ jaspar_app_dir }}/deploy/03-user-static-data.sh'
+    chdir: '{{ jaspar_app_dir }}'
+  when: redeploy_static_content|bool == true

@@ -1,0 +1,9 @@
+---
+# tasks file for 10-root-selinux
+
+#TODO: Ansiblelized script ?
+- name: Initialise directories.
+  become: true
+  ansible.builtin.command:
+    cmd: '{{ jaspar_app_dir }}/deploy/10-root-selinux.sh'
+    chdir: '{{ jaspar_app_dir }}'

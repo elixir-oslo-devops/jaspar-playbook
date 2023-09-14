@@ -1,0 +1,20 @@
+---
+# tasks file for 10-root-selinux-captcha
+
+##TODO: Ansiblelized script ?
+#- name: Allow Apache-resident application to be able to connect to the CAPTCHA server.
+#  become: true
+#  ansible.builtin.command:
+#    cmd: '{{ jaspar_app_dir }}/deploy/10-root-selinux-captcha.sh'
+#    chdir: '{{ jaspar_app_dir }}'
+
+
+- name:  Allow Apache-resident application to be able to connect to the CAPTCHA server.
+  tags:
+  - selinux
+  become: true
+  ansible.posix.seboolean:
+    name: httpd_can_network_connect
+    state: true
+    persistent: true
+

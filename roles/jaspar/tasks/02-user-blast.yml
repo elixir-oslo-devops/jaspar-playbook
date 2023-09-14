@@ -1,0 +1,9 @@
+---
+# tasks file for 02-user-branding
+
+- name: Check blast was correctly installed and accessible
+  become: false
+  ansible.builtin.command:
+    cmd: 'which blastp'
+  register: which_blast
+  failed_when: which_blast is not regex(jaspar_base_dir)

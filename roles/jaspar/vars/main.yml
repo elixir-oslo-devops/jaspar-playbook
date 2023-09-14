@@ -1,5 +1,6 @@
 ---
 jaspar_app_dir: '{{ jaspar_base_dir }}/{{ jaspar_app }}'
+jaspar_tool_dir: '{{ jaspar_base_dir }}/jaspar_tools'
 
 sef_httpd_content:
  - 'jaspar-branding/'
@@ -17,4 +18,42 @@ sef_httpd_content:
  - '{{ jaspar_app }}/utils/'
 
 sef_lib_t_content:
- - '{{ jaspar_app }}/lib/'
+ - '{{ jaspar_app_dir }}/lib/'
+ -
+sef_httpd_sys_rw_content_t_content:
+ - '{{ jaspar_app_dir }}'
+
+sef_bin_t_content:
+ - '{{ jaspar_app_dir }}/lib/usr/local/bin(/.*)?'
+ - '{{ jaspar_app_dir }}/lib/usr/local/lib(/.*)?'
+ - '{{ jaspar_app_dir }}/lib/usr/local/lib64(/.*)?'
+
+
+jaspar_app_git_repo: 'https://bitbucket.org/CBGR/jaspar2020.git'
+jaspar_branding_git_repo: 'https://bitbucket.org/CBGR/jaspar-branding.git'
+jaspar_tools_git_repo: 'https://bitbucket.org/CBGR/jaspar_tools.git'
+jaspar_app_git_version: '20211214-buildah-deployment'
+jaspar_app_main_git_version: 'jaspar2024'
+
+pwd_random_git_repo: 'https://github.com/ge11232002/CSC'
+stamp_git_repo: 'https://github.com/seqcode/stamp'
+
+#jaspar_data_url: 'https://frigg.uio.no/ftp/mathelier/JASPAR_RELEASES_2022-02-11/'
+jaspar_data_url: 'https://frigg.uio.no/ftp/mathelier/JASPAR_RELEASES_2023-09-07/'
+miniconda_url: 'https://repo.anaconda.com/miniconda/Miniconda3-py39_23.3.1-0-Linux-x86_64.sh'
+miniconda_hash: '1564571a6a06a9999a75a6c65d63cb82911fc647e96ba5b729f904bf00c177d3'
+
+requirements_conda:
+ - blast
+ - hmmer
+
+apache_user: apache
+
+jaspar_profile_inference_git_repo: 'https://github.com/wassermanlab/JASPAR-profile-inference.git'
+jaspar_profile_inference_version:
+  - year: 2020
+    jaspar_profile_inference_git_version: faa660497f6a222c22f3aa42db992a5f70f84b4b
+  - year: 2022
+    jaspar_profile_inference_git_version: 5fa64a79c79763384b484d9345bf112bd7dcbf11
+  - year: common
+    jaspar_profile_inference_git_version: master

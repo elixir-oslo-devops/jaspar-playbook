@@ -1,35 +1,21 @@
+---
+# defaults file for jaspar
 jaspar_app: jaspar2020
-jaspar_app_git_repo: 'https://bitbucket.org/CBGR/{{ jaspar_app }}.git'
-jaspar_app_git_version: '20211214-buildah-deployment'
-jaspar_branding_git_repo: 'https://bitbucket.org/CBGR/jaspar-branding.git'
-jaspar_tools_git_repo: 'https://bitbucket.org/CBGR/jaspar_tools.git'
-jaspar_pwd_random_git_repo: 'https://github.com/ge11232002/CSC'
-jaspar_stamp_git_repo: 'https://github.com/seqcode/stamp'
-jaspar_profile_inference_git_repo: 'https://github.com/wassermanlab/JASPAR-profile-inference.git'
-#jaspar_base_dir: /var/www/apps
-#jaspar_data_dir: /data/jaspar-data
-jaspar_base_dir: /data/www/apps
-jaspar_data_dir: '{{ jaspar_base_dir }}/tmp/jaspar-data'
-jaspar2020_dir: '{{ jaspar_base_dir }}/jaspar2020'
-jaspar_tool_dir: '{{ jaspar_base_dir }}/jaspar_tools'
-jaspar_bin_dir:  '{{ jaspar_tool_dir }}/bin'
-jaspar_data_url: 'https://frigg.uio.no/ftp/mathelier/JASPAR_RELEASES_2022-02-11/'
-jaspar_hostname: '{{ inventory_hostname }}'
-jaspar_conda_env:  '{{ jaspar_base_dir }}/lib/usr/local'
-jaspar_port: 8080
+
+jaspar_base_dir: /var/www/apps
+jaspar_data_dir: /tmp/jaspar-data
+
+jaspar_hostname: '{{ ansible_ssh_host }}'
 jaspar_user: '{{ ansible_user }}'
-jaspar_site_profile: site
-jaspar_secure: 1
+
 admin_email: somebody@uio.no
 smtp_host: localhost
 smtp_user: nobody
 smtp_password: ''
-blast_url: 'https://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/'
-blast_archive_prefix: 'ncbi-blast-2.'
-apache_user: apache
-jaspar_version:
-  - 2020
-  - 2022
-jaspar_2020_profile_inference_version: faa660497f6a222c22f3aa42db992a5f70f84b4b
-jaspar_2022_profile_inference_version: 5fa64a79c79763384b484d9345bf112bd7dcbf11
 
+jaspar_port: 80
+jaspar_secure: false
+
+redeploy_static_content: true
+unprivileged: true
+final_privileged: true

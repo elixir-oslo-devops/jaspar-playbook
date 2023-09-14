@@ -1,20 +1,26 @@
 ---
 # Apply label to given file/dir only if changed in the above task.
 - name: Apply SELinux file contexts
-  tags: selinux
+  tags:
+    - selinux
+    - jaspar
   become: true
   ansible.builtin.command: 'restorecon -ir {{ jaspar_base_dir }}/{{ item.item }}'
   when: item.changed
   loop: '{{ sefcontext.results }}'
 
 - name: Restore SELinux file contexts
-  tags: selinux
+  tags:
+    - selinux
+    - jaspar
   become: true
   ansible.builtin.command: 'restorecon -r {{ jaspar_base_dir }}'
 #  ansible.builtin.command: 'restorecon -r {{ jaspar_base_dir }}/{{ item }}'
 #  loop: '{{ sef_httpd_content }}'
 
 - name: Restart httpd
+  tags:
+    - jaspar
   become: true
   ansible.builtin.systemd:
     name: httpd.service
@@ -22,14 +28,18 @@
 
 - name: Run website tests
   listen: Run tests
-  tags: test
+  tags:
+    - test
+    - jaspar
   ansible.builtin.command:
     chdir: '{{ jaspar_base_dir }}/jaspar2020'
     cmd: 'tests/test_website.py --url https://{{ inventory_hostname }}'
 
 - name: Run API tests
   listen: Run tests
-  tags: test
+  tags:
+    - test
+    - jaspar
   ansible.builtin.command:
     chdir: '{{ jaspar_base_dir }}/jaspar2020'
     cmd: 'tests/test_api.py --url https://{{ inventory_hostname }}/api/v1'
