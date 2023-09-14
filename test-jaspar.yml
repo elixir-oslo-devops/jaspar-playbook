@@ -1,7 +1,0 @@
----
-- name: Set up JASPAR instance
-  hosts: test.jaspar.uiocloud.no
-  any_errors_fatal: true
-
-  roles:
-    - jaspar
