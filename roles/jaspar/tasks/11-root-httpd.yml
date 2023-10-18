@@ -20,13 +20,13 @@
   register: jaspar_wsgi
 
 
-- name: Restore default SELinux security contexts for static dir
-  tags:
-    - httpd
-  become: true
-  ansible.builtin.command:
-    cmd: '{{ jaspar_app_dir }}/deploy/tools/init_site {{ ansible_ssh_host }} {{ item | basename |  split(".") | first | regex_replace("^[a-z]+", "")}}'
-  loop: '{{ jaspar_wsgi.files  | map(attribute="path") }}'
+#- name: Restore default SELinux security contexts for static dir
+#  tags:
+#    - httpd
+#  become: true
+#  ansible.builtin.command:
+#    cmd: '{{ jaspar_app_dir }}/deploy/tools/init_site {{ ansible_ssh_host }} {{ item | basename |  split(".") | first | regex_replace("^[a-z]+", "")}}'
+#  loop: '{{ jaspar_wsgi.files  | map(attribute="path") }}'
 
 
 
