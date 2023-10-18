@@ -41,6 +41,8 @@
 
 
 - name: Find python executable
+  tags:
+    - test_replace
   ansible.builtin.find:
     recurse: yes
     paths: '{{ jaspar_app_dir }}/lib/usr/local'
