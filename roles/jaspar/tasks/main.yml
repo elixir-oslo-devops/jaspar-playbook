@@ -239,6 +239,8 @@
 
 
 - name: 00-user-deploy-tools
+  tags:
+    - 00-user-deploy-tools
   include_tasks:
       file: 00-user-deploy-tools.yml
       apply:
@@ -250,6 +252,8 @@
 
 
 - name: 00-user-site
+  tags:
+    - 00-user-site
   include_tasks:
       file: 00-user-site.yml
       apply:
@@ -277,6 +281,8 @@
 
 
 - name: 01-user-dependencies
+  tags:
+    - 01-user-dependencies
   include_tasks:
       file: 01-user-dependencies.yml
       apply:
@@ -286,6 +292,8 @@
 
 
 - name: 02-user-blast
+  tags:
+    - 02-user-blast
   include_tasks:
       file: 02-user-blast.yml
       apply:
@@ -295,6 +303,8 @@
 
 
 - name: 02-user-branding
+  tags:
+    - 02-user-branding
   include_tasks:
       file: 02-user-branding.yml
       apply:
@@ -304,6 +314,8 @@
 
 
 - name: 02-user-directories
+  tags:
+    - 02-user-directories
   include_tasks:
       file: 02-user-directories.yml
       apply:
@@ -313,6 +325,8 @@
 
 
 - name: 02-user-hmmer
+  tags:
+    - 02-user-hmmer
   include_tasks:
       file: 02-user-hmmer.yml
       apply:
@@ -322,6 +336,8 @@
 
 
 - name: 02-user-profile-inference
+  tags:
+    - 02-user-profile-inference
   include_tasks:
       file: 02-user-profile-inference.yml
       apply:
@@ -331,6 +347,8 @@
 
 
 - name: 03-user-django
+  tags:
+    - 03-user-django
   include_tasks:
       file: 03-user-django.yml
       apply:
@@ -340,6 +358,8 @@
 
 
 - name: 03-user-static-data
+  tags:
+    - 03-user-static-data
   include_tasks:
       file: 03-user-static-data.yml
       apply:
@@ -349,6 +369,8 @@
 
 
 - name: 04-user-django-patches
+  tags:
+    - 04-user-django-patches
   include_tasks:
       file: 04-user-django-patches.yml
       apply:
@@ -358,6 +380,8 @@
 
 
 - name: 04-user-metadata
+  tags:
+    - 04-user-metadata
   include_tasks:
       file: 04-user-metadata.yml
       apply:
@@ -367,6 +391,8 @@
 
 
 - name: 05-user-archetypes
+  tags:
+    - 05-user-archetypes
   include_tasks:
       file: 05-user-archetypes.yml
       apply:
@@ -376,6 +402,8 @@
 
 
 - name: 05-user-changelog
+  tags:
+    - 05-user-changelog
   include_tasks:
       file: 05-user-changelog.yml
       apply:
@@ -385,6 +413,8 @@
 
 
 - name: 05-user-database-site-data
+  tags:
+    - 05-user-database-site-data
   include_tasks:
       file: 05-user-database-site-data.yml
       apply:
@@ -393,6 +423,8 @@
   when: unprivileged|bool == true
 
 - name: 06-user-clustering
+  tags:
+    - 06-user-clustering
   include_tasks:
       file: 06-user-clustering.yml
       apply:
@@ -402,6 +434,8 @@
 
 
 - name: 06-user-database-downloads
+  tags:
+    - 06-user-database-downloads
   include_tasks:
       file: 06-user-database-downloads.yml
       apply:
@@ -411,6 +445,8 @@
 
 
 - name: 06-user-sqlite-apache
+  tags:
+    - 06-user-sqlite-apache
   include_tasks:
       file: 06-user-sqlite-apache.yml
       apply:
@@ -420,6 +456,8 @@
 
 
 - name: 07-user-data-features
+  tags:
+    - 07-user-data-features
   include_tasks:
       file: 07-user-data-features.yml
       apply:
@@ -429,6 +467,8 @@
 
 
 - name: 07-user-data
+  tags:
+    - 07-user-data
   include_tasks:
       file: 07-user-data.yml
       apply:
@@ -437,6 +477,8 @@
   when: unprivileged|bool == true
 
 - name: 07-user-downloads
+  tags:
+    - 07-user-downloads
   include_tasks:
       file: 07-user-downloads.yml
       apply:
@@ -452,6 +494,8 @@
 
 
 - name: 10-root-selinux-captcha
+  tags:
+    - 10-root-selinux-captcha
   include_tasks:
       file: 10-root-selinux-captcha.yml
       apply:
@@ -460,6 +504,8 @@
   when: final_privileged|bool == true
 
 - name: 10-root-selinux-lib
+  tags:
+    - 10-root-selinux-lib
   include_tasks:
     file: 10-root-selinux-lib.yml
     apply:
@@ -469,6 +515,8 @@
 
 
 - name: 10-root-selinux-sqlite
+  tags:
+    - 10-root-selinux-sqlite
   include_tasks:
     file: 10-root-selinux-sqlite.yml
     apply:
@@ -477,6 +525,8 @@
   when: final_privileged|bool == true
 
 - name: 10-root-selinux
+  tags:
+    - 10-root-selinux
   include_tasks:
     file: 10-root-selinux.yml
     apply:
@@ -485,6 +535,8 @@
   when: final_privileged|bool == true
 
 - name: 11-root-httpd
+  tags:
+    - 11-root-httpd
   include_tasks:
      file: 11-root-httpd.yml
      apply:
