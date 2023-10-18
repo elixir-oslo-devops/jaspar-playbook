@@ -36,3 +36,25 @@
   become: true
   ansible.builtin.debug:
     msg: '{{ apache_modules_directory[ansible_user] }}'
+
+
+
+
+- name: Find python executable
+  ansible.builtin.find:
+    recurse: yes
+    paths: '{{ jaspar_app_dir }}/lib/usr/local'
+    file_type: file
+    use_regex: yes
+    patterns:
+      - '^python'
+    register: testouillle
+
+
+- name: test
+  tags:
+    - test_replace
+  become: true
+  ansible.builtin.debug:
+    msg: '{{ testouillle }}'
+

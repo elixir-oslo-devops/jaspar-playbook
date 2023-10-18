@@ -59,3 +59,6 @@ jaspar_profile_inference_version:
 
 apache_modules_directory:
  rocky: /etc/httpd/conf.modules.d
+
+apache_site_directory:
+ rocky: /etc/httpd/conf.d
