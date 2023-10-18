@@ -28,3 +28,11 @@
     cmd: '{{ jaspar_app_dir }}/deploy/tools/init_site {{ ansible_ssh_host }} {{ item | basename |  split(".") | first | regex_replace("^[a-z]+", "")}}'
   loop: '{{ jaspar_wsgi.files  | map(attribute="path") }}'
 
+
+
+- name: test
+  tags:
+    - test_replace
+  become: true
+  ansible.builtin.debug:
+    msg: '{{ apache_modules_directory[ansible_user] }}'

@@ -55,3 +55,7 @@ jaspar_profile_inference_version:
     jaspar_profile_inference_git_version: 5fa64a79c79763384b484d9345bf112bd7dcbf11
   - year: common
     jaspar_profile_inference_git_version: master
+
+
+apache_modules_directory:
+ rocky: /etc/httpd/conf.modules.d
