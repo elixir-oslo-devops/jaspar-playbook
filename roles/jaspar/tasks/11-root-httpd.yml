@@ -8,16 +8,15 @@
 #    cmd: '{{ jaspar_app_dir }}/deploy/11-root-httpd.sh'
 #    chdir: '{{ jaspar_app_dir }}'
 #
+#- name: List WSGI files
+#  tags:
+#    - test_replace
+#  ansible.builtin.find:
+#    path: '{{ jaspar_app_dir }}/jaspar'
+#    file_type: file
+#    patterns: 'wsgi*.py'
+#  register: jaspar_wsgi
 
-
-- name: List WSGI files
-  tags:
-    - httpd
-  ansible.builtin.find:
-    path: '{{ jaspar_app_dir }}/jaspar'
-    file_type: file
-    patterns: 'wsgi*.py'
-  register: jaspar_wsgi
 
 
 #- name: Restore default SELinux security contexts for static dir
@@ -29,34 +28,100 @@
 #  loop: '{{ jaspar_wsgi.files  | map(attribute="path") }}'
 
 
-
-- name: test
+- name: Run certbot for NREC DNS
   tags:
     - test_replace
   become: true
-  ansible.builtin.debug:
-    msg: '{{ apache_modules_directory[ansible_user] }}'
+  ansible.builtin.command:
+    cmd: 'certbot certonly --apache -n -d {{ ansible_ssh_host }}'
 
 
 
 
-- name: Find python executable
+
+- name: Copy elixir.no certs
+  become: true
+  tags:
+    - test_replace
+  block:
+    - name: Make elixir.no certs directory
+      ansible.builtin.file:
+        path: '/etc/ssl/certs/{{ elixir_main_dns }}'
+        state: directory
+        mode: '0755'
+    - name: Copy full chain
+      ansible.builtin.template:
+        src: acme_tmp/fullchain.pem
+        dest: '/etc/ssl/certs/{{ elixir_main_dns }}/fullchain.pem'
+        mode: '0644'
+        setype: cert_t
+    - name: Copy private key
+      ansible.builtin.template:
+        src: acme_tmp/privkey.pem
+        dest: '/etc/ssl/certs/{{ elixir_main_dns }}/privkey.pem'
+        mode: '0644'
+        setype: cert_t
+
+
+
+- name: Find conda python executable
   tags:
     - test_replace
   ansible.builtin.find:
     recurse: yes
     paths: '{{ jaspar_app_dir }}/lib/usr/local'
-    file_type: file
+    file_type: directory
     use_regex: yes
     patterns:
-      - '^python'
-    register: testouillle
+      - '^python[0-9]'
+  register: list_conda_python
 
 
-- name: test
+- name: Make python_config
   tags:
     - test_replace
   become: true
-  ansible.builtin.debug:
-    msg: '{{ testouillle }}'
+  ansible.builtin.set_fact:
+    python_config: 'python-path={{ list_conda_python.files | map(attribute="path")  | join("/site-packages:") }}/site-packages'
 
+
+
+- name: List site version
+  tags: test_replace
+  ansible.builtin.debug:
+      msg: '{{ item | split(".") | first  | regex_replace("jaspar", "") }}'
+  loop: '{{ elixir_dns }}'
+
+
+
+- name: Template a file to /etc/httpd/conf.d
+  tags:
+    - test_replace
+  ansible.builtin.include_tasks:
+    file: copy_site_conf.yml
+  loop: '{{ elixir_dns }}'
+  loop_control:
+    loop_var: full_dns
+
+
+- name: Copy ssl apache config
+  become: true
+  tags:
+    - test_replace
+  ansible.builtin.copy:
+    src: roles/jaspar/files/options-ssl-apache.conf
+    dest: '/etc/letsencrypt/options-ssl-apache.conf'
+    mode: '0644'
+    setype: etc_t
+
+
+
+- name: Copy NREC apache config
+  become: true
+  tags:
+    - test_replace
+  ansible.builtin.template:
+    src: roles/jaspar/files/NREC-site.conf-ssl
+    dest: '/etc/httpd/conf.d/{{ ansible_ssh_host }}.conf'
+    mode: '0644'
+    setype: httpd_config_t
