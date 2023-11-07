@@ -1,0 +1,12 @@
+---
+- name: List site version
+  ansible.builtin.set_fact:
+    version: '{{ full_dns | split(".") | first  | regex_replace("jaspar", "") }}'
+
+- name: Copy config
+  become: true
+  ansible.builtin.template:
+    src: roles/jaspar/files/elixir-site.conf-ssl
+    dest: '/etc/httpd/conf.d/{{ full_dns }}.conf'
+    mode: '0644'
+    setype: httpd_config_t
