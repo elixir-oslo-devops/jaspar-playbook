@@ -126,7 +126,7 @@
     - test_replace
   become: true
   ansible.builtin.command:
-    cmd: 'certbot certonly --apache -n -d {{ ansible_ssh_host }}'
+    cmd: 'certbot --apache -n -d {{ ansible_ssh_host }}'
 
 
 - name: Comment in line redirecting from http virtualhost to https
