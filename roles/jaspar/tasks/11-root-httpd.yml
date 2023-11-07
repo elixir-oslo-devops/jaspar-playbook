@@ -28,12 +28,7 @@
 #  loop: '{{ jaspar_wsgi.files  | map(attribute="path") }}'
 
 
-- name: Run certbot for NREC DNS
-  tags:
-    - test_replace
-  become: true
-  ansible.builtin.command:
-    cmd: 'certbot certonly --apache -n -d {{ ansible_ssh_host }}'
+
 
 
 
@@ -125,3 +120,11 @@
     dest: '/etc/httpd/conf.d/{{ ansible_ssh_host }}.conf'
     mode: '0644'
     setype: httpd_config_t
+
+
+- name: Run certbot for NREC DNS
+  tags:
+    - test_replace
+  become: true
+  ansible.builtin.command:
+    cmd: 'certbot certonly --apache -n -d {{ ansible_ssh_host }}'
