@@ -99,17 +99,6 @@
     loop_var: full_dns
 
 
-- name: Copy ssl apache config
-  become: true
-  tags:
-    - test_replace
-  ansible.builtin.copy:
-    src: roles/jaspar/files/options-ssl-apache.conf
-    dest: '/etc/letsencrypt/options-ssl-apache.conf'
-    mode: '0644'
-    setype: etc_t
-
-
 - name: Copy NREC apache config
   become: true
   tags:
@@ -127,15 +116,3 @@
   become: true
   ansible.builtin.command:
     cmd: 'certbot --apache -n -d {{ ansible_ssh_host }}'
-
-
-- name: Comment in line redirecting from http virtualhost to https
-  become: true
-  tags:
-    - test_replace
-  lineinfile:
-    dest: '/etc/httpd/conf.d/{{ ansible_ssh_host }}.conf'
-    regexp: '#(RedirectMatch.*)$'
-    line: '\1'
-    backrefs: yes
-    state: present
