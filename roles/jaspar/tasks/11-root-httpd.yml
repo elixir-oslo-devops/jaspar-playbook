@@ -110,7 +110,6 @@
     setype: etc_t
 
 
-
 - name: Copy NREC apache config
   become: true
   tags:
@@ -120,6 +119,15 @@
     dest: '/etc/httpd/conf.d/{{ ansible_ssh_host }}.conf'
     mode: '0644'
     setype: httpd_config_t
+
+
+- name: Run certbot for NREC DNS
+  tags:
+    - test_replace
+  become: true
+  ansible.builtin.command:
+    cmd: 'certbot certonly --apache -n -d {{ ansible_ssh_host }}'
+
 
 - name: Comment in line redirecting from http virtualhost to https
   become: true
@@ -131,10 +139,3 @@
     line: '\1'
     backrefs: yes
     state: present
-
-- name: Run certbot for NREC DNS
-  tags:
-    - test_replace
-  become: true
-  ansible.builtin.command:
-    cmd: 'certbot certonly --apache -n -d {{ ansible_ssh_host }}'
