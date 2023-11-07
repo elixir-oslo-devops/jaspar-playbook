@@ -122,6 +122,9 @@
     setype: httpd_config_t
 
 - name: Comment in line redirecting from http virtualhost to https
+  become: true
+  tags:
+    - test_replace
   lineinfile:
     dest: '/etc/httpd/conf.d/{{ ansible_ssh_host }}.conf'
     regexp: '#(RedirectMatch.*)$'
