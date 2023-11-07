@@ -38,8 +38,6 @@
     </Directory>
 
     Include /etc/letsencrypt/options-ssl-apache.conf
-    SSLCertificateFile /etc/letsencrypt/live/{{ ansible_ssh_host }}/fullchain.pem
-    SSLCertificateKeyFile  /etc/letsencrypt/live/{{ ansible_ssh_host }}/privkey.pem
 
 </VirtualHost>
 </IfModule>
