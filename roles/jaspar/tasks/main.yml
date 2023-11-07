@@ -529,7 +529,7 @@
   become: true
   community.general.sefcontext:
     target: '{{ item | regex_replace("/$", "(/.*)?") }}'
-    setype: bin_t
+    setype: httpd_sys_rw_content_t
     state: present
   loop: '{{ sef_httpd_sys_rw_content_t_content }}'
   register: sefcontext
