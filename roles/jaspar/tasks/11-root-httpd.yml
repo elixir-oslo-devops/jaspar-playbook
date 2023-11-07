@@ -121,6 +121,13 @@
     mode: '0644'
     setype: httpd_config_t
 
+- name: Comment in line redirecting from http virtualhost to https
+  lineinfile:
+    dest: '/etc/httpd/conf.d/{{ ansible_ssh_host }}.conf'
+    regexp: '#(RedirectMatch.*)$'
+    line: '\1'
+    backrefs: yes
+    state: present
 
 - name: Run certbot for NREC DNS
   tags:
