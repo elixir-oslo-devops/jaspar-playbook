@@ -27,7 +27,7 @@
     </Directory>
 
     <Directory {{ jaspar_app_dir }}/jaspar>
-        <Files wsgi.py>
+        <Files wsgi{{ version }}.py>
             Require all granted
         </Files>
     </Directory>
