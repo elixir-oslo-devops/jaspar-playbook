@@ -13,7 +13,6 @@
   roles:
 #    - role: /Users/jeannech/PycharmProjects/ansible-role-setup-nrec
     - role: ansible-role-setup-nrec-host
-      host_name: jaspar-dev
       tags:
         - nrec
 
