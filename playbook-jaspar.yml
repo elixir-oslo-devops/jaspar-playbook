@@ -1,8 +1,18 @@
-- name: Set up NREC server for all hosts
+- name: Set up NREC server for all hosts - OpenStack tasks
   hosts: localhost
   roles:
 #    - role: /Users/jeannech/PycharmProjects/ansible-role-setup-nrec
     - role: ansible-role-setup-nrec
+      host_name: jaspar-dev
+      tags:
+        - nrec
+
+
+- name: Set up NREC server for all hosts - in-host tasks
+  hosts: {{ server_name_cmd }}
+  roles:
+#    - role: /Users/jeannech/PycharmProjects/ansible-role-setup-nrec
+    - role: ansible-role-setup-nrec-host
       host_name: jaspar-dev
       tags:
         - nrec
