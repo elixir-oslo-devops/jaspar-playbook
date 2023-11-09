@@ -1,25 +1,25 @@
 <IfModule mod_ssl.c>
 <VirtualHost *:80>
 
-    ServerName www.{{ ansible_ssh_host }}
-    ServerAlias {{ ansible_ssh_host }}
+    ServerName www.{{ ansible_host }}
+    ServerAlias {{ ansible_host }}
     DocumentRoot {{ jaspar_app_dir }}
 
-    #RedirectMatch permanent "^/(.*)$" "https://{{ ansible_ssh_host }}/$1"
+    #RedirectMatch permanent "^/(.*)$" "https://{{ ansible_host }}/$1"
 
 </VirtualHost>
 
 <VirtualHost *:443>
 
-    ServerName www.{{ ansible_ssh_host }}
-    ServerAlias {{ ansible_ssh_host }}
+    ServerName www.{{ ansible_host }}
+    ServerAlias {{ ansible_host }}
     DocumentRoot {{ jaspar_app_dir }}
 
     WSGIScriptAlias / {{ jaspar_app_dir }}/jaspar/wsgi.py
 
-    WSGIDaemonProcess {{ ansible_ssh_host }} home={{ jaspar_app_dir }} \
+    WSGIDaemonProcess {{ ansible_host }} home={{ jaspar_app_dir }} \
         {{ python_config }}
-    WSGIProcessGroup {{ ansible_ssh_host }}
+    WSGIProcessGroup {{ ansible_host }}
 
     Alias /static {{ jaspar_app_dir }}/static
     <Directory {{ jaspar_app_dir }}/static>

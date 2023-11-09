@@ -2,7 +2,7 @@
 <VirtualHost *:80>
 
     ServerName {{ full_dns }}
-    #ServerAlias {{ ansible_ssh_host }}
+    #ServerAlias {{ ansible_host }}
     DocumentRoot {{ jaspar_app_dir }}
 
     RedirectMatch permanent "^/(.*)$" "https://{{ full_dns }}/$1"
@@ -12,7 +12,7 @@
 <VirtualHost *:443>
 
     ServerName {{ full_dns }}
-    # ServerAlias {{ ansible_ssh_host }}
+    # ServerAlias {{ ansible_host }}
     DocumentRoot {{ jaspar_app_dir }}
 
     WSGIScriptAlias / {{ jaspar_app_dir }}/jaspar/wsgi{{ version }}.py

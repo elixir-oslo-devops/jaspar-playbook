@@ -24,7 +24,7 @@
 #    - httpd
 #  become: true
 #  ansible.builtin.command:
-#    cmd: '{{ jaspar_app_dir }}/deploy/tools/init_site {{ ansible_ssh_host }} {{ item | basename |  split(".") | first | regex_replace("^[a-z]+", "")}}'
+#    cmd: '{{ jaspar_app_dir }}/deploy/tools/init_site {{ ansible_host }} {{ item | basename |  split(".") | first | regex_replace("^[a-z]+", "")}}'
 #  loop: '{{ jaspar_wsgi.files  | map(attribute="path") }}'
 
 
@@ -105,7 +105,7 @@
     - test_replace
   ansible.builtin.template:
     src: roles/jaspar/files/NREC-site.conf-ssl
-    dest: '/etc/httpd/conf.d/{{ ansible_ssh_host }}.conf'
+    dest: '/etc/httpd/conf.d/{{ ansible_host }}.conf'
     mode: '0644'
     setype: httpd_config_t
 
@@ -115,4 +115,4 @@
     - test_replace
   become: true
   ansible.builtin.command:
-    cmd: 'certbot --apache -n -d {{ ansible_ssh_host }}'
+    cmd: 'certbot --apache -n -d {{ ansible_host }}'

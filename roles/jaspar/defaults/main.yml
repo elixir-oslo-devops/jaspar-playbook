@@ -5,7 +5,7 @@ jaspar_app: jaspar2020
 jaspar_base_dir: /var/www/apps
 jaspar_data_dir: /tmp/jaspar-data
 
-jaspar_hostname: '{{ ansible_ssh_host }}'
+jaspar_hostname: '{{ ansible_host }}'
 jaspar_user: '{{ ansible_user }}'
 
 admin_email: somebody@uio.no
