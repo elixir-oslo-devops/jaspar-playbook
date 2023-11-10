@@ -37,6 +37,7 @@
 - name: "Searching for a String"
   tags:
     - jaspar
+    - initialization
     - miniconda
   lineinfile:
     path: '/home/{{ ansible_user }}/.bashrc'
@@ -49,6 +50,7 @@
 - name: "Searching for a String"
   tags:
     - jaspar
+    - initialization
     - miniconda
   ansible.builtin.debug:
     msg: '{{ presence }}'
