@@ -165,7 +165,7 @@
     state: present
   loop: '{{ sef_httpd_content }}'
   register: sefcontext
-  notify: Apply SELinux file contexts
+#  notify: Apply SELinux file contexts
 
 # builtin.get_url not appear to support recursive download
 - name: Fetch JASPAR data
@@ -559,7 +559,7 @@
     state: present
   loop: '{{ sef_lib_t_content }}'
   register: sefcontext
-  notify: Apply SELinux file contexts
+#  notify: Apply SELinux file contexts
 
 - name: Set SELinux file context for bin
   tags:
@@ -571,7 +571,7 @@
     state: present
   loop: '{{ sef_bin_t_content }}'
   register: sefcontext
-  notify: Apply SELinux file contexts
+#  notify: Apply SELinux file contexts
 
 - name: Set SELinux file context for httpd_sys_rw_content_t
   tags:
@@ -583,13 +583,14 @@
     state: present
   loop: '{{ sef_httpd_sys_rw_content_t_content }}'
   register: sefcontext
-  notify: Apply SELinux file contexts
+#  notify: Apply SELinux file contexts
 
 - name: Restart stuff
   tags:
     - finalization
   ansible.builtin.debug:
     msg: 'Restart stuff'
+  changed_when: true
   notify:
     - Restore SELinux file contexts
     - Restart httpd
