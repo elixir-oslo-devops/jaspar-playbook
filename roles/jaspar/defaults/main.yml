@@ -8,7 +8,7 @@ jaspar_data_dir: /tmp/jaspar-data
 jaspar_hostname: '{{ ansible_host }}'
 jaspar_user: '{{ ansible_user }}'
 
-admin_email: somebody@uio.no
+admin_email: morj@uio.no
 smtp_host: localhost
 smtp_user: nobody
 smtp_password: ''

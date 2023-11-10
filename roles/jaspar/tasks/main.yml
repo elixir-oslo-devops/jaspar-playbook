@@ -25,6 +25,7 @@
       - certbot
       - python3-certbot-apache
       - wget
+      - postfix
 
 - name: Gather the package facts
   tags:
