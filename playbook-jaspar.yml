@@ -10,7 +10,7 @@
 
 - name: Set up NREC server for all hosts - in-host tasks
   hosts: '{{ server_name_cmd }}'
-  gather_facts: false
+#  gather_facts: false
   roles:
 #    - role: /Users/jeannech/PycharmProjects/ansible-role-setup-nrec
     - role: ansible-role-setup-nrec-host
