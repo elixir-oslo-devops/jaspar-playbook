@@ -594,18 +594,18 @@
     - Run tests
 
 
-- name: Restore SELinux file contexts
-  tags:
-    - selinux
-  become: true
-  ansible.builtin.command: 'restorecon -Rv {{ jaspar_base_dir }}'
+#- name: Restore SELinux file contexts
+#  tags:
+#    - selinux
+#  become: true
+#  ansible.builtin.command: 'restorecon -Rv {{ jaspar_base_dir }}'
 
 
-- name: Restart httpd
-  tags:
-    - apache
-  become: true
-  ansible.builtin.systemd:
-    name: httpd.service
-    state: restarted
+#- name: Restart httpd
+#  tags:
+#    - apache
+#  become: true
+#  ansible.builtin.systemd:
+#    name: httpd.service
+#    state: restarted
 
