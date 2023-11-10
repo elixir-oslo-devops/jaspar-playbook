@@ -198,7 +198,7 @@
     regexp: '^{{ item.setting }} = .+'
     replace: '{{ item.setting }} = {{ item.value }}'
   loop:
-    - { setting: 'SEND_TO_EMAIL', value: "'{{ admin_email }}'" }
+    - { setting: 'SEND_TO_EMAIL', value: "['{{ admin_email }}']" }
     - { setting: 'TIME_ZONE', value: "'CET'" }
 
 #==============================================
