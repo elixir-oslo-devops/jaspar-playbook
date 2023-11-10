@@ -88,17 +88,6 @@
   loop: '{{ elixir_dns }}'
 
 
-
-- name: Template a file to /etc/httpd/conf.d
-  tags:
-    - test_replace
-  ansible.builtin.include_tasks:
-    file: copy_site_conf.yml
-  loop: '{{ elixir_dns }}'
-  loop_control:
-    loop_var: full_dns
-
-
 - name: Copy NREC apache config
   become: true
   tags:
@@ -116,3 +105,15 @@
   become: true
   ansible.builtin.command:
     cmd: 'certbot --apache -n -d {{ ansible_host }}'
+
+
+- name: Template a file to /etc/httpd/conf.d
+  tags:
+    - test_replace
+  ansible.builtin.include_tasks:
+    file: copy_site_conf.yml
+  loop: '{{ elixir_dns }}'
+  loop_control:
+    loop_var: full_dns
+  notify:
+    - Restart httpd

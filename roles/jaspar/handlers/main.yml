@@ -22,9 +22,9 @@
   tags:
     - jaspar
   become: true
-  ansible.builtin.systemd:
-    name: httpd.service
-    state: reloaded
+  ansible.builtin.service:
+    name: httpd
+    state: restarted
 
 - name: Run website tests
   listen: Run tests
