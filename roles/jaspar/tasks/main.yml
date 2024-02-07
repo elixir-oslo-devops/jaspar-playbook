@@ -131,6 +131,15 @@
     cmd: 'certbot -n register --agree-tos --email {{ admin_email }}'
     creates: '/etc/letsencrypt/accounts/acme-v02.api.letsencrypt.org/directory/*/regr.json'
 
+- name: Start Certbot renew timer
+  become: true
+  tags:
+    - jaspar
+    - initialization
+  ansible.builtin.service:
+    name: certbot-renew.timer
+    state: started
+
 - name: Clone main repo
   tags:
     - jaspar
