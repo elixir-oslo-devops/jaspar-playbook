@@ -15,7 +15,7 @@
 #    - role: /Users/jeannech/PycharmProjects/ansible-role-setup-nrec
     - role: ansible-role-setup-nrec-host
       tags:
-        - nrec
+#        - nrec
         - host
 
 
