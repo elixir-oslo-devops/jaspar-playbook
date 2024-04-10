@@ -16,7 +16,7 @@
     - role: ansible-role-setup-nrec-host
       tags:
         - nrec
-        - nrec-host
+        - host
 
 
 
