@@ -115,3 +115,4 @@
   loop: '{{ elixir_dns }}'
   loop_control:
     loop_var: full_dns
+  notify: Restart httpd
