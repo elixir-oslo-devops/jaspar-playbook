@@ -1,4 +1,11 @@
 <IfModule mod_ssl.c>
+
+<Location "/server-status">
+    SetHandler server-status
+    Order deny,allow
+    Allow from 127.0.0.1 ::1 localhost
+</Location>
+
 <VirtualHost *:80>
 
     ServerName {{ full_dns }}
