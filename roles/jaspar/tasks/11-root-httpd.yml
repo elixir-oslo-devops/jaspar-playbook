@@ -115,3 +115,10 @@
   loop: '{{ elixir_dns }}'
   loop_control:
     loop_var: full_dns
+
+- name: Notifying Apache handler to restart
+  tags:
+    - test_replace
+  ansible.builtin.debug:
+    msg: 'Restarting Apache...'
+  notify: Restart httpd

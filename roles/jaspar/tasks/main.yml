@@ -555,7 +555,6 @@
        tags:
          - 11-root-httpd
   when: final_privileged|bool == true
-  notify: Restart httpd
 
 
 
