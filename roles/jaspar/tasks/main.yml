@@ -555,6 +555,7 @@
        tags:
          - 11-root-httpd
   when: final_privileged|bool == true
+  notify: Restart httpd
 
 
 
@@ -620,4 +621,3 @@
 #  ansible.builtin.systemd:
 #    name: httpd.service
 #    state: restarted
-
