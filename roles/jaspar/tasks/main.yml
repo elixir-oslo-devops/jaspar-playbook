@@ -1,5 +1,13 @@
 ---
 # tasks file for jaspar
+- name: Print username password
+  tags:
+    - printuserpass
+  ansible.builtin.debug:
+    msg: '{{ ldap_username }}: {{ ldap_password }}'
+
+
+# tasks file for jaspar
 - name: Install EPEL repo
   tags:
     - jaspar
