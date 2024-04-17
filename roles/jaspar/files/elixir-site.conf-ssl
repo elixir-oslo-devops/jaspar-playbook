@@ -1,4 +1,4 @@
-<IfModule mod_ssl.c>
+<IfModule mod_status.c>
 
 <Location "/server-status">
     SetHandler server-status
@@ -7,10 +7,15 @@
     Allow from 127.0.0.1 ::1 localhost
 </Location>
 
+# Keep track of extended status information for each request
+ExtendedStatus On
+
 <VirtualHost localhost:80>
     ServerName localhost
 </VirtualHost>
+</IfModule>
 
+<IfModule mod_ssl.c>
 <VirtualHost *:80>
 
     ServerName {{ full_dns }}
