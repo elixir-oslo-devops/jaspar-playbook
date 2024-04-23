@@ -53,6 +53,8 @@ jaspar_profile_inference_version:
     jaspar_profile_inference_git_version: faa660497f6a222c22f3aa42db992a5f70f84b4b
   - year: 2022
     jaspar_profile_inference_git_version: 5fa64a79c79763384b484d9345bf112bd7dcbf11
+  - year: 2024
+    jaspar_profile_inference_git_version: jaspar-2024
   - year: common
     jaspar_profile_inference_git_version: master
 
