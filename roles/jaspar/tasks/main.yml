@@ -1,5 +1,11 @@
 ---
 # tasks file for jaspar
+- name: Print host variable
+  tags:
+      - test_print
+  ansible.builtin.debug:
+      var: hostvars[inventory_hostname]
+
 - name: Install EPEL repo
   tags:
     - jaspar
