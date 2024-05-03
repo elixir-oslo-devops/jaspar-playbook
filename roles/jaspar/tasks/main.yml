@@ -1,11 +1,5 @@
 ---
 # tasks file for jaspar
-- name: Print host variable
-  tags:
-      - test_print
-  ansible.builtin.debug:
-      var: hostvars[inventory_hostname]
-
 - name: Install EPEL repo
   tags:
     - jaspar
@@ -150,13 +144,12 @@
   tags:
     - jaspar
     - initialization
-    - test_print
   ansible.builtin.git:
     repo: '{{ jaspar_app_git_repo }}'
     dest: '{{ jaspar_base_dir }}/jaspar2020'
     version: '{{ jaspar_app_main_git_version }}'
-#    update: false
-    force: true
+    update: false
+    force: false
 
 - name: Clone branding repo
   tags:
