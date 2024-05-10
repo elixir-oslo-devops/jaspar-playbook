@@ -1,9 +1,47 @@
 ---
 # tasks file for 06-user-database-downloads
 
-#TODO: Ansiblelized script ?
-- name: Generate database archives.
-  become: false
-  ansible.builtin.command:
-    cmd: '{{ jaspar_app_dir }}/deploy/06-user-database-downloads.sh'
-    chdir: '{{ jaspar_app_dir }}'
+##TODO: Ansiblelized script ?
+#- name: Generate database archives.
+#  become: false
+#  ansible.builtin.command:
+#    cmd: '{{ jaspar_app_dir }}/deploy/06-user-database-downloads.sh'
+#    chdir: '{{ jaspar_app_dir }}'
+
+
+
+- name: Create database download directory
+  ansible.builtin.file:
+    path: '{{ jaspar_app_dir }}/download/database'
+    state: directory
+    mode: '0755'
+
+
+- name: Find all databases
+  ansible.builtin.find:
+    paths: '{{ jaspar_app_dir }}'
+    file_type: file
+    patterns: 'JASPAR*sqlite3'
+  register: jaspar_sqlite
+
+
+- name: Throw error if no databases are found
+  ansible.builtin.fail:
+    msg: "No databases found!"
+  when: jaspar_sqlite.files | length == 0
+
+
+- name: Generate a dump file from the database and compress it.
+  block:
+    - name: Generate a dump file from the database
+      ansible.builtin.command: "{{ jaspar_app_dir }}/deploy/tools/dump_database {{ item.path }} mktemp --suffix=.sql"
+
+    - name: Compress the dump file
+      community.general.archive:
+        path: "{{ item.path }}"
+        dest: "{{ jaspar_app_dir }}/download/database/{{ item.path | basename | regex_replace('sqlite3$', 'sql.gz') }}"
+        format: gz
+
+  loop: '{{ jaspar_sqlite.files }}'
+
+
