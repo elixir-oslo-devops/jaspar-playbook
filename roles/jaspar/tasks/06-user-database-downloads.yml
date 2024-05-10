@@ -30,17 +30,25 @@
     msg: "No databases found!"
   when: jaspar_sqlite.files | length == 0
 
-
-
 - name: Generate a dump file from the database
   ansible.builtin.command: "{{ jaspar_app_dir }}/deploy/tools/dump_database {{ item.path }} mktemp --suffix=.sql"
   loop: '{{ jaspar_sqlite.files }}'
 
-#- name: Compress the dump file
-#  community.general.archive:
-#    path: "{{ item.path }}"
-#    dest: "{{ jaspar_app_dir }}/download/database/{{ item.path | basename | regex_replace('sqlite3$', 'sql.gz') }}"
-#    format: gz
+- name: Compress the dump file
+  community.general.archive:
+    path: "{{ item.path }}"
+    dest: "{{ jaspar_app_dir }}/download/database/{{ item.path | basename | regex_replace('sqlite3$', 'sql.gz') }}"
+    format: gz
+  loop: '{{ jaspar_sqlite.files }}'
+
+- name: Get sqlite file from compressed file
+  ansible.builtin.command: "gunzip -c {{ jaspar_app_dir }}/download/database/{{ item.path | basename | regex_replace('sqlite3$', 'sql.gz') }} > {{ jaspar_app_dir }}/download/database/{{ item.path | basename | regex_replace('sqlite3$', 'sqlite') }}"
+  loop: '{{ jaspar_sqlite.files }}'
+
+#- name: Remove the dump file
+#  ansible.builtin.file:
+#      path: "{{ item.path }}"
+#      state: absent
 #  loop: '{{ jaspar_sqlite.files }}'
 
 
