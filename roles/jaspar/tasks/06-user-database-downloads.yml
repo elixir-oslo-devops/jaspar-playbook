@@ -42,11 +42,15 @@
   loop: '{{ jaspar_sqlite.files }}'
 
 - name: Unarchived the compressed file
-  ansible.builtin.unarchive:
-    src: "{{ jaspar_app_dir }}/download/database/{{ item.path | basename | regex_replace('sqlite3$', 'sql.gz') }}"
-    dest: "{{ jaspar_app_dir }}/download/database/"
-    remote_src: yes
+  ansible.builtin.command: "gunzip --keep {{ jaspar_app_dir }}/download/database/{{ item.path | basename | regex_replace('sqlite3$', 'sql.gz') }}"
   loop: '{{ jaspar_sqlite.files }}'
+#  ansible.builtin.unarchive:
+#    src: "{{ jaspar_app_dir }}/download/database/{{ item.path | basename | regex_replace('sqlite3$', 'sql.gz') }}"
+#    dest: "{{ jaspar_app_dir }}/download/database/"
+#    remote_src: yes
+#    extra_opts:
+#      - --gunzip
+#  loop: '{{ jaspar_sqlite.files }}'
 
 #- name: Get sqlite file from compressed file
 #  ansible.builtin.command: "gunzip -c {{ jaspar_app_dir }}/download/database/{{ item.path | basename | regex_replace('sqlite3$', 'sql.gz') }} > {{ jaspar_app_dir }}/download/database/{{ item.path | basename | regex_replace('sqlite3$', 'sqlite') }}"
