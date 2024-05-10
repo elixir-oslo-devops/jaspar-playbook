@@ -42,7 +42,7 @@
   loop: '{{ jaspar_sqlite.files }}'
 
 - name: Unarchived the compressed file
-  ansible.builtin.command: "gunzip --keep {{ jaspar_app_dir }}/download/database/{{ item.path | basename | regex_replace('sqlite3$', 'sql.gz') }}"
+  ansible.builtin.command: "gunzip --keep --force {{ jaspar_app_dir }}/download/database/{{ item.path | basename | regex_replace('sqlite3$', 'sql.gz') }}"
   loop: '{{ jaspar_sqlite.files }}'
 
 - name: Ensure SQLITE3 format
