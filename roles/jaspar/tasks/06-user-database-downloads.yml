@@ -31,25 +31,63 @@
   when: jaspar_sqlite.files | length == 0
 
 - name: Generate a dump file from the database
-  ansible.builtin.shell: "{{ jaspar_app_dir }}/deploy/tools/dump_database {{ item.path }} mktemp --suffix=.sql"
+  ansible.builtin.shell:
+    cmd: "{{ jaspar_app_dir }}/deploy/tools/dump_database {{ item.path }} {{ dump_path }}"
+  vars:
+    dump_path: "{{ lookup('ansible.builtin.tempfile', suffix='.sql') }}"
   loop: '{{ jaspar_sqlite.files }}'
 
-- name: Compress the dump file
-  community.general.archive:
-    path: "{{ item.path }}"
-    dest: "{{ jaspar_app_dir }}/download/database/{{ item.path | basename | regex_replace('sqlite3$', 'sql.gz') }}"
-    format: gz
-  loop: '{{ jaspar_sqlite.files }}'
+- name: Generate and compress database dumps
+  block:
+    - name: Generate dump file from database
+      ansible.builtin.shell:
+        cmd: "{{ tools_dir }}/dump_database {{ item.path }} {{ dump_path }}"
+      vars:
+        dump_path: "{{ lookup('ansible.builtin.tempfile', suffix='.sql') }}"
+      register: dump_file
 
+    - name: Compress the dump file
+      ansible.builtin.shell:
+        cmd: "gzip -c {{ dump_file.stdout }} > {{ downloads_dir }}/{{ item.path | basename | regex_replace('.sqlite3', '') }}.sql.gz"
+      vars:
+        downloads_dir: "{{ basedir }}/download/database"
 
-- name: Get sqlite file from compressed file
-  ansible.builtin.shell: "gunzip -c {{ jaspar_app_dir }}/download/database/{{ item.path | basename | regex_replace('sqlite3$', 'sql.gz') }} | {{ jaspar_app_dir }}/download/database/{{ item.path | basename | regex_replace('sqlite3$', 'sqlite') }}"
-  loop: '{{ jaspar_sqlite.files }}'
+    - name: Convert gzipped dump back to SQLite format
+      ansible.builtin.shell:
+        cmd: "gunzip -c {{ downloads_dir }}/{{ item.path | basename | regex_replace('.sqlite3', '') }}.sql.gz | sqlite3 {{ downloads_dir }}/{{ item.path | basename | regex_replace('.sqlite3', '') }}.sqlite"
 
-#- name: Remove the dump file
-#  ansible.builtin.file:
-#      path: "{{ item.path }}"
-#      state: absent
+    - name: Remove temporary dump file
+      ansible.builtin.file:
+        path: "{{ dump_file.stdout }}"
+        state: absent
+
+  loop: "{{ jaspar_sqlite.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+
+#
+#- name: Compress the dump file
+#  community.general.shell:
+#    cmd: "gzip -c {{ item.path | basename | regex_replace('sqlite3$', 'sql.gz') }} > {{ item.path | regex_replace('sqlite3$', 'sql.gz') }}"
+#    chdir: "{{ jaspar_app_dir }}/download/database/"
 #  loop: '{{ jaspar_sqlite.files }}'
+##
+##- name: Compress the dump file
+##  community.general.archive:
+##    path: "{{ item.path }}"
+##    dest: "{{ jaspar_app_dir }}/download/database/{{ item.path | basename | regex_replace('sqlite3$', 'sql.gz') }}"
+##    format: gz
+##  loop: '{{ jaspar_sqlite.files }}'
+#
+#
+#- name: Get sqlite file from compressed file
+#  ansible.builtin.shell: "gunzip -c {{ jaspar_app_dir }}/download/database/{{ item.path | basename | regex_replace('sqlite3$', 'sql.gz') }} | {{ jaspar_app_dir }}/download/database/{{ item.path | basename | regex_replace('sqlite3$', 'sqlite') }}"
+#  loop: '{{ jaspar_sqlite.files }}'
+#
+##- name: Remove the dump file
+##  ansible.builtin.file:
+##      path: "{{ item.path }}"
+##      state: absent
+##  loop: '{{ jaspar_sqlite.files }}'
 
 
