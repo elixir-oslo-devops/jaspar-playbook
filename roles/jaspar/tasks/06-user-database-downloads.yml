@@ -31,7 +31,7 @@
   when: jaspar_sqlite.files | length == 0
 
 - name: Generate a dump file from the database
-  ansible.builtin.command: "{{ jaspar_app_dir }}/deploy/tools/dump_database {{ item.path }} mktemp --suffix=.sql"
+  ansible.builtin.shell: "{{ jaspar_app_dir }}/deploy/tools/dump_database {{ item.path }} mktemp --suffix=.sql"
   loop: '{{ jaspar_sqlite.files }}'
 
 - name: Compress the dump file
