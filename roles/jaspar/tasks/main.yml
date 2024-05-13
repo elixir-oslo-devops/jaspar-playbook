@@ -445,6 +445,36 @@
   when: unprivileged|bool == true
 
 
+#==============================================
+# 06-user-database-downloads
+
+- name: Create database download directory
+  tags:
+    - 06-user-database-downloads
+  ansible.builtin.file:
+    path: '{{ jaspar_app_dir }}/download/database'
+    state: directory
+    mode: '0755'
+
+
+- name: Find all databases
+  tags:
+    - 06-user-database-downloads
+  ansible.builtin.find:
+    paths: '{{ jaspar_app_dir }}'
+    file_type: file
+    patterns: 'JASPAR*sqlite3'
+  register: jaspar_sqlite
+
+
+- name: Throw error if no databases are found
+  tags:
+    - 06-user-database-downloads
+  ansible.builtin.fail:
+    msg: "No databases found!"
+  when: jaspar_sqlite.files | length == 0
+
+
 - name: 06-user-database-downloads
   tags:
     - 06-user-database-downloads
@@ -453,8 +483,13 @@
       apply:
         tags:
           - 06-user-database-downloads
+  loop: '{{ jaspar_sqlite.files }}'
+  loop_control:
+      loop_var: jaspar_sqlite_file
   when: unprivileged|bool == true
 
+# end
+#==============================================
 
 - name: 06-user-sqlite-apache
   tags:
