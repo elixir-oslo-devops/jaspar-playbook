@@ -47,11 +47,11 @@
 
 - name: Dump the database
   ansible.builtin.shell:
-    cmd: "{{ jaspar_app_dir }}/deploy/tools/dump_database {{ raw_path }} {{ dump }}"
+    cmd: "{{ jaspar_app_dir }}/deploy/tools/dump_database {{ raw_path }} {{ dump.stdout }}"
 
 - name: Compress the dump file
   ansible.builtin.shell:
-    cmd: "gzip -c {{ dump }} > {{ database_compressed_path }}"
+    cmd: "gzip -c {{ dump.stdout }} > {{ database_compressed_path }}"
 
 - name: Get sqlite file from compressed file
   ansible.builtin.shell:
@@ -59,7 +59,7 @@
 
 - name: Remove the dump file
   ansible.builtin.file:
-      path: "{{ dump }}"
+      path: "{{ dump.stdout }}"
       state: absent
 
 #
