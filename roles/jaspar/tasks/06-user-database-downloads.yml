@@ -37,8 +37,8 @@
   set_fact:
     download_dir: "{{ jaspar_app_dir }}/download/database"
     raw_path: "{{ jaspar_sqlite_file.path }}"
-    database_compressed_path: "{{ download_dir }}/{{ jaspar_sqlite_file | basename | regex_replace('sqlite3$', 'sql.gz') }}"
-    database_path: "{{ download_dir }}/{{ jaspar_sqlite_file | basename | regex_replace('sqlite3$', 'sqlite') }}"
+    database_compressed_path: "{{ jaspar_app_dir }}/download/database/{{ jaspar_sqlite_file | basename | regex_replace('sqlite3$', 'sql.gz') }}"
+    database_path: "{{ jaspar_app_dir }}/download/database/{{ jaspar_sqlite_file | basename | regex_replace('sqlite3$', 'sqlite') }}"
 
 - name: Get dump file
   ansible.builtin.shell:
