@@ -50,7 +50,7 @@
     cmd: "{{ jaspar_app_dir }}/deploy/tools/dump_database {{ raw_path }} {{ dump }}"
 
 - name: Compress the dump file
-  community.general.shell:
+  ansible.builtin.shell:
     cmd: "gzip -c {{ dump }} > {{ database_compressed_path }}"
 
 - name: Get sqlite file from compressed file
