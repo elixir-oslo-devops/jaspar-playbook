@@ -9,36 +9,17 @@
 #    chdir: '{{ jaspar_app_dir }}'
 
 
-
-#- name: Create database download directory
-#  ansible.builtin.file:
-#    path: '{{ jaspar_app_dir }}/download/database'
-#    state: directory
-#    mode: '0755'
-#
-#
-#- name: Find all databases
-#  ansible.builtin.find:
-#    paths: '{{ jaspar_app_dir }}'
-#    file_type: file
-#    patterns: 'JASPAR*sqlite3'
-#  register: jaspar_sqlite
-#
-#
-#- name: Throw error if no databases are found
-#  ansible.builtin.fail:
-#    msg: "No databases found!"
-#  when: jaspar_sqlite.files | length == 0
-#
-#- name: Generate a dump file from the database
-#  ansible.builtin.shell: "{{ jaspar_app_dir }}/deploy/tools/dump_database {{ item.path }} mktemp --suffix=.sql"
-#  loop: '{{ jaspar_sqlite.files }}'
 - name: Set path facts
   set_fact:
     download_dir: "{{ jaspar_app_dir }}/download/database"
     raw_path: "{{ jaspar_sqlite_file.path }}"
     database_compressed_path: "{{ jaspar_app_dir }}/download/database/{{ jaspar_sqlite_file.path | basename | regex_replace('sqlite3$', 'sql.gz') }}"
     database_path: "{{ jaspar_app_dir }}/download/database/{{ jaspar_sqlite_file.path | basename | regex_replace('sqlite3$', 'sqlite') }}"
+
+- name: Check if the database file exists
+  ansible.builtin.stat:
+    path: "{{ database_path }}"
+  register: database_file
 
 - name: Get dump file
   ansible.builtin.shell:
