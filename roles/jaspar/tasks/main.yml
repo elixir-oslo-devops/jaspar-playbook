@@ -433,7 +433,7 @@
       apply:
         tags:
           - 05-user-database-site-data
-  when: unprivileged|bool == true
+  # when: unprivileged|bool == true
 
 - name: 06-user-clustering
   tags:
