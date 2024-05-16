@@ -184,7 +184,7 @@
   ansible.builtin.command:
     cmd: 'wget -r -nv -nc -nd -np -l 1 --no-check-certificate -e robots=off -P {{ jaspar_data_dir }} {{ jaspar_data_url }} '
   register: wget_result
-  changed_when: '"Downloaded:" in wget_result.stderr'
+  # changed_when: '"Downloaded:" in wget_result.stderr'
 
 - name: SMTP settings file
   become: true
