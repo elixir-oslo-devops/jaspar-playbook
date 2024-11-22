@@ -49,22 +49,22 @@
   ansible.builtin.pip:
     extra_args: '--root {{ jaspar_app_dir }}/lib'
     name:
-      - bootstrap-admin
+      - bootstrap-admin==0.4.4
       - biopython==1.76
-      - coreapi
+      - coreapi==2.3.3
       - django==2.2.17
-      - django-filter
-      - django-bootstrap-form
-      - django_compressor
-      - django-debug-toolbar
+      - django-filter==21.1
+      - django-bootstrap-form==3.4
+      - django_compressor==4.4
+      - django-debug-toolbar==3.2.4
       - django-recaptcha==3.0.0
-      - django-rest-framework
-      - django-rest-swagger
-      - djangorestframework-jsonp
-      - djangorestframework-yaml
+      - django-rest-framework==3.13.1
+      - django-rest-swagger==2.2.0
+      - djangorestframework-jsonp==1.0.2
+      - djangorestframework-yaml==2.0.0
       - markdown
       - numpy
       - pandas
       - pygments
       - scipy
-      - tqdm
+      - tqdm==4.66.1
