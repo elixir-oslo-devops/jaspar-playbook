@@ -65,7 +65,6 @@
       - markdown==3.5.2
       - numpy
       - pandas
-      - pygments
       - scipy
       - tqdm==4.66.1
       - tzdata==2023.4
