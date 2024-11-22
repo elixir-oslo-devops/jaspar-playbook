@@ -62,9 +62,10 @@
       - django-rest-swagger==2.2.0
       - djangorestframework-jsonp==1.0.2
       - djangorestframework-yaml==2.0.0
-      - markdown
+      - markdown==3.5.2
       - numpy
       - pandas
       - pygments
       - scipy
       - tqdm==4.66.1
+      - tzdata==2023.4
