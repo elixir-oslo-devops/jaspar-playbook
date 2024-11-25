@@ -68,7 +68,7 @@
       - scipy
       - tqdm==4.66.1
       - tzdata==2023.4
-      - pygments=2.17.2
-      - python_dateutil=2.8.2
-      - sqlparse=0.4.4
-      - zipp=3.17.0
+      - pygments==2.17.2
+      - python_dateutil==2.8.2
+      - sqlparse==0.4.4
+      - zipp==3.17.0
