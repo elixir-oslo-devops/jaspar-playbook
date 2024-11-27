@@ -149,7 +149,7 @@ keystone_rc.sh
 /Dockerfile
 /.ssh/
 =======
-/roles/*
+# /roles/*
 /.ssh/
 /keystone_rc.sh
 .idea
