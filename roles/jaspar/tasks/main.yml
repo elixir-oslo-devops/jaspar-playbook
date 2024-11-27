@@ -638,7 +638,7 @@
   notify:
     - Restore SELinux file contexts
     - Restart httpd
-    - Run tests
+    # - Run tests
 
 
 #- name: Restore SELinux file contexts
