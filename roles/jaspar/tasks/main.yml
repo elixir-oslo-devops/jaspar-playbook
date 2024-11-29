@@ -148,7 +148,7 @@
     repo: '{{ jaspar_app_git_repo }}'
     dest: '{{ jaspar_base_dir }}/jaspar2020'
     version: '{{ jaspar_app_main_git_version }}'
-    update: false
+    update: true
     force: false
 
 - name: Clone branding repo
