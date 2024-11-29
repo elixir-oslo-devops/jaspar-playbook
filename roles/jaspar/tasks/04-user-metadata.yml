@@ -8,3 +8,5 @@
   ansible.builtin.command:
     cmd: '{{ jaspar_app_dir }}/deploy/04-user-metadata.sh'
     chdir: '{{ jaspar_app_dir }}'
+  register: metadata_result
+  failed_when: metadata_result.stderr != ''
