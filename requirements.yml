@@ -10,4 +10,5 @@ roles:
     scm: git
 
 collections:
-- openstack.cloud
+  - name: openstack.cloud
+    version: 2.3.3
