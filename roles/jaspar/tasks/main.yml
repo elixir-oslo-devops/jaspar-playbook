@@ -146,7 +146,7 @@
     - initialization
   ansible.builtin.git:
     repo: '{{ jaspar_app_git_repo }}'
-    dest: '{{ jaspar_base_dir }}/jaspar2020'
+    dest: '{{ jaspar_app_dir }}'
     version: '{{ jaspar_app_main_git_version }}'
     update: true
     force: true
@@ -193,7 +193,7 @@
     - initialization
   ansible.builtin.template:
     src: templates/smtp_settings.txt.j2
-    dest: '{{ jaspar_base_dir }}/jaspar2020/smtp_settings.txt'
+    dest: '{{ jaspar_app_dir }}/smtp_settings.txt'
     owner: '{{ jaspar_user }}'
     group: apache
     mode: '0640'
@@ -203,7 +203,7 @@
     - jaspar
     - initialization
   ansible.builtin.replace:
-    path: '{{ jaspar_base_dir }}/jaspar2020/jaspar/settings.py'
+    path: '{{ jaspar_app_dir }}/jaspar/settings.py'
     regexp: '^{{ item.setting }} = .+'
     replace: '{{ item.setting }} = {{ item.value }}'
   loop:

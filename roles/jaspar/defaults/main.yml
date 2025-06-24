@@ -1,6 +1,6 @@
 ---
 # defaults file for jaspar
-jaspar_app: jaspar2020
+jaspar_app: jaspar_deployment
 
 jaspar_base_dir: /var/www/apps
 jaspar_data_dir: /tmp/jaspar-data

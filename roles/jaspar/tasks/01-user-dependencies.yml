@@ -42,7 +42,7 @@
     path: /etc/profile.d/custom-path.sh
     line: 'PATH=$PATH:{{ jaspar_app_dir }}/lib/usr/local/bin'
     create: yes
-  when: "ansible_env.PATH is not search( '/var/www/apps/jaspar2020/lib/usr/local/bin')"
+  when: ansible_env.PATH is not search('/var/www/apps/{}/lib/usr/local/bin'.format(jaspar_app))
 
 
 - name: Install python package

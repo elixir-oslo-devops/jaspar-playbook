@@ -34,7 +34,7 @@
     - test
     - jaspar
   ansible.builtin.command:
-    chdir: '{{ jaspar_base_dir }}/jaspar2020'
+    chdir: '{{ jaspar_app_dir }}'
     cmd: 'tests/test_website.py --url https://{{ ansible_host }}'
 
 - name: Run API tests
@@ -43,5 +43,5 @@
     - test
     - jaspar
   ansible.builtin.command:
-    chdir: '{{ jaspar_base_dir }}/jaspar2020'
+    chdir: '{{ jaspar_app_dir }}'
     cmd: 'tests/test_api.py --url https://{{ ansible_host }}/api/v1'
