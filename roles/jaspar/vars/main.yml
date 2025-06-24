@@ -29,7 +29,7 @@ sef_bin_t_content:
  - '{{ jaspar_app_dir }}/lib/usr/local/lib64(/.*)?'
 
 
-jaspar_app_git_repo: 'https://bitbucket.org/CBGR/jaspar2020.git'
+jaspar_app_git_repo: 'https://bitbucket.org/CBGR/jaspar_deployment.git'
 jaspar_branding_git_repo: 'https://bitbucket.org/CBGR/jaspar-branding.git'
 jaspar_tools_git_repo: 'https://bitbucket.org/CBGR/jaspar_tools.git'
 jaspar_app_git_version: '20211214-buildah-deployment'

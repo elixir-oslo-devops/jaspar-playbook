@@ -45,16 +45,16 @@
         state: directory
         mode: '0755'
     - name: Copy full chain
-      ansible.builtin.template:
+      ansible.builtin.copy:
         src: acme_tmp/fullchain.pem
         dest: '/etc/ssl/certs/{{ elixir_main_dns }}/fullchain.pem'
         mode: '0644'
         setype: cert_t
     - name: Copy private key
-      ansible.builtin.template:
+      ansible.builtin.copy:
         src: acme_tmp/privkey.pem
         dest: '/etc/ssl/certs/{{ elixir_main_dns }}/privkey.pem'
-        mode: '0644'
+        mode: '0640'
         setype: cert_t
 
 
