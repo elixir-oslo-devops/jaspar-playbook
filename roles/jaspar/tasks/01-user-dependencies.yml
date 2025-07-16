@@ -62,6 +62,7 @@
       - django-rest-swagger==2.2.0
       - djangorestframework-jsonp==1.0.2
       - djangorestframework-yaml==2.0.0
+      - inmotifin
       - markdown==3.5.2
       - numpy
       - pandas
