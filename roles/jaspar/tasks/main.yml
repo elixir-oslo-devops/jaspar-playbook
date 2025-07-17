@@ -69,7 +69,7 @@
         mode: u=rwx,g=rwx,o=r
     - name: Run miniconda script
       ansible.builtin.command:
-        cmd: '/tmp/miniconda.sh -b -p /home/{{ ansible_user }}/miniconda'
+        cmd: '/tmp/miniconda.sh -b -u -p /home/{{ ansible_user }}/miniconda'
     - name: Activate miniconda
       ansible.builtin.lineinfile:
         path:  '/home/{{ ansible_user }}/.bashrc'
