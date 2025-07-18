@@ -75,7 +75,7 @@
         path:  '/home/{{ ansible_user }}/.bashrc'
         line: 'PATH=$PATH:/home/{{ ansible_user }}/miniconda/bin'
         create: yes
-  when: 'presence.changed == true'
+  when: 'presence.changed == false'
 
 
 - name: Configure conda
