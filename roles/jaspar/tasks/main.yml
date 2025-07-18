@@ -41,7 +41,7 @@
     - miniconda
   lineinfile:
     path: '/home/{{ ansible_user }}/.bashrc'
-    regexp: "/home/{{ ansible_user }}/miniconda/bin"
+#    regexp: "/home/{{ ansible_user }}/miniconda/bin"
     line: 'PATH=$PATH:/home/{{ ansible_user }}/miniconda/bin'
     state: present
   check_mode: yes
