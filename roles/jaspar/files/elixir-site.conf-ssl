@@ -37,6 +37,7 @@ ExtendedStatus On
     WSGIDaemonProcess {{ full_dns }} home={{ jaspar_app_dir }} \
         {{ python_config }}
     WSGIProcessGroup {{ full_dns }}
+    WSGIApplicationGroup %{GLOBAL}
 
     Alias /static {{ jaspar_app_dir }}/static
     <Directory {{ jaspar_app_dir }}/static>

@@ -20,6 +20,7 @@
     WSGIDaemonProcess {{ ansible_host }} home={{ jaspar_app_dir }} \
         {{ python_config }}
     WSGIProcessGroup {{ ansible_host }}
+    WSGIApplicationGroup %{GLOBAL}
 
     Alias /static {{ jaspar_app_dir }}/static
     <Directory {{ jaspar_app_dir }}/static>
