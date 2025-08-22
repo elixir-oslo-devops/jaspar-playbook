@@ -73,4 +73,3 @@
       - sqlparse==0.4.4
       - zipp==3.17.0
       - inmotifin
-      - tangermeme==0.4.0
