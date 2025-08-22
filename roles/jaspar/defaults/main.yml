@@ -20,3 +20,5 @@ jaspar_secure: false
 redeploy_static_content: true
 unprivileged: true
 final_privileged: true
+
+jaspar_dl_database_url: 'https://mencius.uio.no/JASPAR/JASPAR_DeepLearning/2026/DL2026.sqlite3'

@@ -47,3 +47,13 @@
   become: false
   ansible.builtin.shell: 'sqlite3 {{ item }} < {{ jaspar_data_dir }}/jaspar-site-data-{{ current_database }}.sql'
   loop: '{{ jaspar_sqlite.files  | map(attribute="path") }}'
+
+- name: Fetch DL database
+  tags:
+    - jaspar
+    - 05-user-database-site-data
+  become: false
+  ansible.builtin.get_url:
+    url: '{{ jaspar_dl_database_url }}'
+    dest: '{{ jaspar_app_dir }}'
+
