@@ -47,7 +47,7 @@
 
 - name: Install python package
   ansible.builtin.pip:
-    extra_args: '--root {{ jaspar_app_dir }}/lib'
+    extra_args: '--root {{ jaspar_app_dir }}/lib --upgrade --force-reinstall'
     name:
       - bootstrap-admin==0.4.4
       - biopython==1.76
