@@ -35,7 +35,9 @@
   ansible.builtin.find:
     paths: '{{ jaspar_app_dir }}/'
     file_type: file
-    patterns: JASPAR*sqlite3
+    patterns:
+      - JASPAR*.sqlite3
+      - DL*.sqlite3
     excludes: '*BACKUP*'
   register: latest_jaspar_sqlite
 
