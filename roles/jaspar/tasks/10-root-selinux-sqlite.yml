@@ -11,24 +11,24 @@
 
 
 
-- name: List temp directory
-  tags:
-    - selinux
-  ansible.builtin.find:
-    path: '{{ jaspar_app_dir }}/temp'
-    file_type: directory
-  register: jaspar_temp
+#- name: List temp directory
+#  tags:
+#    - selinux
+#  ansible.builtin.find:
+#    path: '{{ jaspar_app_dir }}/temp'
+#    file_type: directory
+#  register: jaspar_temp
 
 - name: Set permissions for temp directory write access
   tags:
     - selinux
   become: true
   community.general.sefcontext:
-    target: '{{ jaspar_app_dir }}/{{ item | basename }}'
+    target: '{{ jaspar_app_dir }}/temp(/.*)?'
     setype: httpd_sys_rw_content_t
     ftype: a
     state: present
-  loop: '{{ jaspar_temp.files  | map(attribute="path") }}'
+#  loop: '{{ jaspar_temp.files  | map(attribute="path") }}'
 
 
 - name: Restore default SELinux security contexts for temp
@@ -36,8 +36,8 @@
     - selinux
   become: true
   ansible.builtin.command:
-    cmd: 'restorecon -R {{ jaspar_app_dir }}/{{ item | basename }}'
-  loop: '{{ jaspar_temp.files  | map(attribute="path") }}'
+    cmd: 'restorecon -R {{ jaspar_app_dir }}/temp'
+#  loop: '{{ jaspar_temp.files  | map(attribute="path") }}'
 
 
 - name: Restore default SELinux security contexts for static dir
