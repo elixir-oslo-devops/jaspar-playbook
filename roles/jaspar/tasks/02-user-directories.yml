@@ -28,6 +28,18 @@
     path: '{{ jaspar_app_dir }}/temp'
     entity: '{{ apache_user }}'
     etype: user
+    permissions: rwx
+    state: present
+
+- name: set a default ACL for Apache.
+  tags:
+    - jaspar
+    - 02-user-directories
+    - ACL-permission
+  ansible.posix.acl:
+    path: '{{ jaspar_app_dir }}/temp'
+    entity: '{{ apache_user }}'
+    etype: user
     permissions: rwX
     default: true
     state: present
