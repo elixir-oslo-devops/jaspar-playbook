@@ -40,19 +40,6 @@
 #  loop: '{{ jaspar_temp.files  | map(attribute="path") }}'
 
 
-- name: set an ACL for Apache.
-  tags:
-    - jaspar
-    - ACL-permission
-  ansible.posix.acl:
-    path: '{{ jaspar_app_dir }}/temp'
-    entity: '{{ apache_user }}'
-    etype: user
-    permissions: rwx
-    recursive: true
-    state: present
-
-
 - name: Restore default SELinux security contexts for static dir
   tags:
     - selinux

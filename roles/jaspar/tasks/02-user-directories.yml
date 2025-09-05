@@ -28,5 +28,6 @@
     path: '{{ jaspar_app_dir }}/temp'
     entity: '{{ apache_user }}'
     etype: user
-    permissions: rwx
+    permissions: rwX
+    default: true
     state: present
