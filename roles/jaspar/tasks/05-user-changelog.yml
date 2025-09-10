@@ -80,4 +80,10 @@
     path: '{{ jaspar_app_dir }}/portal/templates/portal/changelogs.html'
     line: '{% raw %}{%{% endraw %} include "portal/changelogs/{{ item }}" {% raw %}%}{% endraw %}'
     create: true
-  loop: '{{ jaspar_changelog_manifest.files  | map(attribute="path") | map("basename") }}'
+  loop: >-
+    {{
+      jaspar_changelog_manifest.files
+      | sort(attribute='mtime', reverse=true)
+      | map(attribute='path')
+      | map('basename')
+    }}
