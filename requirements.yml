@@ -9,6 +9,6 @@ roles:
     version: dev-jaspar
     scm: git
 
-collections:
-  - name: openstack.cloud
-    version: 2.3.3
+#collections:
+#  - name: openstack.cloud
+#    version: 2.3.3
