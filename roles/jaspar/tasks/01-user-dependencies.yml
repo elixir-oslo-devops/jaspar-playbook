@@ -50,6 +50,7 @@
     extra_args: '--root {{ jaspar_app_dir }}/lib'
     name:
       - bootstrap-admin==0.4.4
+      - pyjaspar
       - biopython==1.76
       - coreapi==2.3.3
       - django==2.2.17
