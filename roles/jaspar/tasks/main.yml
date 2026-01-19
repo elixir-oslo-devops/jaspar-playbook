@@ -34,6 +34,16 @@
   ansible.builtin.package_facts:
     manager: auto
 
+- name: Ensure proper httpd state
+  tags:
+    - jaspar
+    - initialization
+  become: true
+  ansible.builtin.service:
+    name: httpd
+    state: stopped
+    enabled: true
+
 - name: "Searching for a String"
   tags:
     - jaspar
