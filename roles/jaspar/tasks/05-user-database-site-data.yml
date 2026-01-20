@@ -57,3 +57,22 @@
     url: '{{ jaspar_dl_database_url }}'
     dest: '{{ jaspar_app_dir }}'
 
+- name: List old database backups
+  tags:
+    - jaspar
+    - 05-user-database-site-data
+  ansible.builtin.find:
+    paths: '{{ jaspar_app_dir }}'
+    file_type: file
+    patterns: 'JASPAR*sqlite3.backup-*'
+    age: 1m
+  register: jaspar_sqlite_backup
+
+- name: Delete old database backups
+  tags:
+    - jaspar
+    - 05-user-database-site-data
+  ansible.builtin.file:
+    path: '{{ item }}'
+    state: absent
+  loop: '{{ jaspar_sqlite_backup.files | map(attribute="path") }}'
