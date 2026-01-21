@@ -65,7 +65,7 @@
     paths: '{{ jaspar_app_dir }}'
     file_type: file
     patterns: 'JASPAR*sqlite3.backup-*'
-    age: 1m
+    age: 1d
   register: jaspar_sqlite_backup
 
 - name: Delete old database backups
