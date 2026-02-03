@@ -17,7 +17,7 @@
 
     WSGIScriptAlias / {{ jaspar_app_dir }}/jaspar/wsgi.py
 
-    WSGIDaemonProcess {{ ansible_host }} home={{ jaspar_app_dir }} \
+    WSGIDaemonProcess {{ ansible_host }} display-name=%{GROUP} home={{ jaspar_app_dir }} \
         {{ python_config }}
     WSGIProcessGroup {{ ansible_host }}
     WSGIApplicationGroup %{GLOBAL}

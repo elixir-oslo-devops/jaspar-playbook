@@ -34,7 +34,7 @@ ExtendedStatus On
 
     WSGIScriptAlias / {{ jaspar_app_dir }}/jaspar/wsgi{{ version }}.py
 
-    WSGIDaemonProcess {{ full_dns }} home={{ jaspar_app_dir }} \
+    WSGIDaemonProcess {{ full_dns }} display-name=%{GROUP} home={{ jaspar_app_dir }} \
         {{ python_config }}
     WSGIProcessGroup {{ full_dns }}
     WSGIApplicationGroup %{GLOBAL}
