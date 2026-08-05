@@ -38,6 +38,15 @@
     dest: '{{ jaspar_app_dir }}/secret.txt'
     owner: '{{ ansible_user }}'
 
+- name: Start django-q cluster
+  tags:
+    - jaspar
+    - 03-user-django
+  ansible.builtin.command:
+    cmd: 'python {{ jaspar_app_dir }}/manage.py qcluster'
+  environment:
+    PYTHONPATH: '{{ pythonpath.stdout }}'
+
 - name: Initialise static content
   tags:
     - jaspar
