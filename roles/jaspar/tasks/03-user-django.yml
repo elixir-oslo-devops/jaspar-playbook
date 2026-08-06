@@ -38,12 +38,21 @@
     dest: '{{ jaspar_app_dir }}/secret.txt'
     owner: '{{ ansible_user }}'
 
+- name: Migrate database for django-q
+  tags:
+    - jaspar
+    - 03-user-django
+  ansible.builtin.command:
+    cmd: 'python {{ jaspar_app_dir }}/manage.py migrate django_q'
+  environment:
+    PYTHONPATH: '{{ pythonpath.stdout }}'
+
 - name: Start django-q cluster
   tags:
     - jaspar
     - 03-user-django
   ansible.builtin.shell:
-    cmd: 'nohup python {{ jaspar_app_dir }}/manage.py qcluster & sleep 5'
+    cmd: 'pkill -f qcluster; nohup python {{ jaspar_app_dir }}/manage.py qcluster & sleep 5'
     chdir: '{{ jaspar_app_dir }}'
   environment:
     PYTHONPATH: '{{ pythonpath.stdout }}'
