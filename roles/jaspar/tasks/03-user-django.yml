@@ -44,6 +44,7 @@
     - 03-user-django
   ansible.builtin.shell:
     cmd: 'nohup python {{ jaspar_app_dir }}/manage.py qcluster & sleep 5'
+    chdir: '{{ jaspar_app_dir }}'
   environment:
     PYTHONPATH: '{{ pythonpath.stdout }}'
 
