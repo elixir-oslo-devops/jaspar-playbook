@@ -52,7 +52,7 @@
     - jaspar
     - 03-user-django
   ansible.builtin.shell:
-    cmd: 'pkill -f qcluster; nohup python {{ jaspar_app_dir }}/manage.py qcluster & sleep 5'
+    cmd: 'pkill -f qcluster || true; nohup python {{ jaspar_app_dir }}/manage.py qcluster & sleep 5'
     chdir: '{{ jaspar_app_dir }}'
   environment:
     PYTHONPATH: '{{ pythonpath.stdout }}'
