@@ -42,8 +42,8 @@
   tags:
     - jaspar
     - 03-user-django
-  ansible.builtin.command:
-    cmd: 'python {{ jaspar_app_dir }}/manage.py qcluster'
+  ansible.builtin.shell:
+    cmd: 'nohup python {{ jaspar_app_dir }}/manage.py qcluster & sleep 5'
   environment:
     PYTHONPATH: '{{ pythonpath.stdout }}'
 
