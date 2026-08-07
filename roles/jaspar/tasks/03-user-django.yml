@@ -38,6 +38,16 @@
     dest: '{{ jaspar_app_dir }}/secret.txt'
     owner: '{{ ansible_user }}'
 
+- name: Stop django-q cluster
+  become: true
+  tags:
+    - jaspar
+    - 03-user-django
+  ansible.builtin.command:
+    cmd: 'pkill -f "manage.py qcluster"'
+  register: pkill_result
+  failed_when: pkill_result.rc > 1
+
 - name: Migrate database for django-q
   tags:
     - jaspar
