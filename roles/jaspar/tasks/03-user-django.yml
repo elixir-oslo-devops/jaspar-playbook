@@ -48,12 +48,13 @@
     PYTHONPATH: '{{ pythonpath.stdout }}'
 
 - name: Start django-q cluster
+  become_user: apache
   tags:
     - jaspar
     - 03-user-django
   ansible.builtin.shell:
     cmd: |
-      nohup python {{ jaspar_app_dir }}/manage.py qcluster &
+      nohup python {{ jaspar_app_dir }}/manage.py qcluster >/tmp/qluster.log 2>&1 &
       sleep 5
     chdir: '{{ jaspar_app_dir }}'
   environment:
