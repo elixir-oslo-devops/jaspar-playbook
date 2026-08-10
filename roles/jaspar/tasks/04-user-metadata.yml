@@ -3,16 +3,6 @@
 
 #Note: About 1 min
 
-- name: Stop django-q cluster
-  become: true
-  tags:
-    - jaspar
-    - 04-user-metadata
-  ansible.builtin.command:
-    cmd: 'pkill -f "manage.py qcluster"'
-  register: pkill_result
-  failed_when: pkill_result.rc > 1
-
 #TODO: Ansiblelized script ?
 - name: Import the metadata into the database from each versioned metadata directory.
   become: false
@@ -24,26 +14,3 @@
     chdir: '{{ jaspar_app_dir }}'
   register: metadata_result
   failed_when: metadata_result.stderr != ''
-
-#- name: Migrate database for django-q
-#  tags:
-#    - jaspar
-#    - 03-user-django
-#  ansible.builtin.command:
-#    cmd: 'python {{ jaspar_app_dir }}/manage.py migrate django_q'
-#  environment:
-#    PYTHONPATH: '{{ pythonpath.stdout }}'
-
-- name: Start django-q cluster
-  become: true
-  become_user: apache
-  tags:
-    - jaspar
-    - 04-user-metadata
-  ansible.builtin.shell:
-    cmd: |
-      nohup python {{ jaspar_app_dir }}/manage.py qcluster >/tmp/qcluster.log 2>&1 &
-      sleep 5
-    chdir: '{{ jaspar_app_dir }}'
-  environment:
-    PYTHONPATH: '{{ pythonpath.stdout }}'
