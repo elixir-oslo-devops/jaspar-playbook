@@ -1,26 +1,6 @@
 ---
 # tasks file for 08-django-q-cluster
 
-- name: Stop django-q cluster
-  become: true
-  tags:
-    - jaspar
-    - 08-django-q-cluster
-  ansible.builtin.command:
-    cmd: 'pkill -f "manage.py qcluster"'
-  register: pkill_result
-  failed_when: pkill_result.rc > 1
-
-# All migrations are processed during 04-user-metadata
-#- name: Migrate database for django-q
-#  tags:
-#    - jaspar
-#    - 03-user-django
-#  ansible.builtin.command:
-#    cmd: 'python {{ jaspar_app_dir }}/manage.py migrate django_q'
-#  environment:
-#    PYTHONPATH: '{{ pythonpath.stdout }}'
-
 - name: Start django-q cluster
   become: true
   become_user: apache

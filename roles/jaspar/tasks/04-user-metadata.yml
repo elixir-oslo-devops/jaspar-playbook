@@ -3,6 +3,16 @@
 
 #Note: About 1 min
 
+- name: Stop django-q cluster
+  become: true
+  tags:
+    - jaspar
+    - 04-user-metadata
+  ansible.builtin.command:
+    cmd: 'pkill -f "manage.py qcluster"'
+  register: pkill_result
+  failed_when: pkill_result.rc > 1
+
 #TODO: Ansiblelized script ?
 - name: Import the metadata into the database from each versioned metadata directory.
   become: false
