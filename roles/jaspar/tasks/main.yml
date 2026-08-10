@@ -591,19 +591,6 @@
   when: final_privileged|bool == true
 
 
-
-- name: 15-django-q-cluster
-  tags:
-    - 15-django-q-cluster
-  include_tasks:
-      file: 15-django-q-cluster.yml
-      apply:
-        tags:
-          - 15-django-q-cluster
-  when: unprivileged|bool == true
-
-
-
 - name: Set SELinux file context for lib
   tags:
     - finalization
@@ -666,3 +653,14 @@
 #  ansible.builtin.systemd:
 #    name: httpd.service
 #    state: restarted
+
+
+- name: 15-django-q-cluster
+  tags:
+    - 15-django-q-cluster
+  include_tasks:
+      file: 15-django-q-cluster.yml
+      apply:
+        tags:
+          - 15-django-q-cluster
+  when: unprivileged|bool == true
