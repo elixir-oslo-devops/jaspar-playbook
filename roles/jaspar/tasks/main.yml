@@ -533,16 +533,6 @@
           - 07-user-downloads
   when: unprivileged|bool == true
 
-- name: 08-django-q-cluster
-  tags:
-    - 08-django-q-cluster
-  include_tasks:
-      file: 08-django-q-cluster.yml
-      apply:
-        tags:
-          - 08-django-q-cluster
-  when: unprivileged|bool == true
-
 
 #==============================================
 # final privileged deploy scripts
@@ -599,6 +589,18 @@
        tags:
          - 11-root-httpd
   when: final_privileged|bool == true
+
+
+
+- name: 15-django-q-cluster
+  tags:
+    - 15-django-q-cluster
+  include_tasks:
+      file: 15-django-q-cluster.yml
+      apply:
+        tags:
+          - 15-django-q-cluster
+  when: unprivileged|bool == true
 
 
 
