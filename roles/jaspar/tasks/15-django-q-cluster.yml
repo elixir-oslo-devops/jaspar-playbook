@@ -1,14 +1,15 @@
 ---
-# tasks file for 08-django-q-cluster
+# tasks file for 15-django-q-cluster
 
 - name: Start django-q cluster
   become: true
   become_user: apache
   tags:
     - jaspar
-    - 08-django-q-cluster
+    - 15-django-q-cluster
   ansible.builtin.shell:
     cmd: |
+      sleep 10
       nohup python {{ jaspar_app_dir }}/manage.py qcluster >/tmp/qcluster.log 2>&1 &
       sleep 5
     chdir: '{{ jaspar_app_dir }}'
