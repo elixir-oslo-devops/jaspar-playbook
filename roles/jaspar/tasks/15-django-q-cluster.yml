@@ -9,7 +9,8 @@
     - 15-django-q-cluster
   ansible.builtin.shell:
     cmd: |
-      sleep 10
+      RELEASE_YEAR=$(grep -oP 'RELEASE = "\K[0-9]+' jaspar/wsgi.py)
+      export DJANGO_SETTINGS_MODULE="jaspar.settings${RELEASE_YEAR}"
       nohup python {{ jaspar_app_dir }}/manage.py qcluster >/tmp/qcluster.log 2>&1 &
       sleep 5
     chdir: '{{ jaspar_app_dir }}'
