@@ -380,15 +380,15 @@
   when: unprivileged|bool == true
 
 
-- name: 04-user-django-patches
-  tags:
-    - 04-user-django-patches
-  include_tasks:
-      file: 04-user-django-patches.yml
-      apply:
-        tags:
-          - 04-user-django-patches
-  when: unprivileged|bool == true
+#- name: 04-user-django-patches
+#  tags:
+#    - 04-user-django-patches
+#  include_tasks:
+#      file: 04-user-django-patches.yml
+#      apply:
+#        tags:
+#          - 04-user-django-patches
+#  when: unprivileged|bool == true
 
 
 - name: 04-user-metadata
