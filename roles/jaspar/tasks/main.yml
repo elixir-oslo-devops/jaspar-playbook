@@ -404,15 +404,15 @@
   when: unprivileged|bool == true
 
 
-- name: 04-user-django-patches
-  tags:
-    - 04-user-django-patches
-  include_tasks:
-      file: 04-user-django-patches.yml
-      apply:
-        tags:
-          - 04-user-django-patches
-  when: unprivileged|bool == true
+#- name: 04-user-django-patches
+#  tags:
+#    - 04-user-django-patches
+#  include_tasks:
+#      file: 04-user-django-patches.yml
+#      apply:
+#        tags:
+#          - 04-user-django-patches
+#  when: unprivileged|bool == true
 
 
 - name: 04-user-metadata
@@ -558,7 +558,6 @@
   when: unprivileged|bool == true
 
 
-
 #==============================================
 # final privileged deploy scripts
 #==============================================
@@ -614,7 +613,6 @@
        tags:
          - 11-root-httpd
   when: final_privileged|bool == true
-
 
 
 - name: Set SELinux file context for lib
@@ -679,3 +677,14 @@
 #  ansible.builtin.systemd:
 #    name: httpd.service
 #    state: restarted
+
+
+- name: 15-django-q-cluster
+  tags:
+    - 15-django-q-cluster
+  include_tasks:
+      file: 15-django-q-cluster.yml
+      apply:
+        tags:
+          - 15-django-q-cluster
+  when: unprivileged|bool == true

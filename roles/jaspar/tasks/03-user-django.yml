@@ -34,7 +34,7 @@
     - jaspar
     - 03-user-django
   ansible.builtin.copy:
-    content: "{{ python_secret }}"
+    content: "{{ python_secret.stdout }}"
     dest: '{{ jaspar_app_dir }}/secret.txt'
     owner: '{{ ansible_user }}'
 

@@ -7,7 +7,7 @@
   ansible.builtin.git:
     repo: '{{ jaspar_tools_git_repo }}'
     dest: '{{ jaspar_tool_dir }}'
-    version: '{{ jaspar_app_git_version }}'
+    version: '{{ jaspar_tools_git_version }}'
 
 
 
