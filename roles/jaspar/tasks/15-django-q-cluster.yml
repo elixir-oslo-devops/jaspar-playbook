@@ -1,5 +1,13 @@
 ---
 # tasks file for 15-django-q-cluster
+- name: Upload qcluster service script
+  tags:
+    - jaspar
+    - 15-django-q-cluster
+  ansible.builtin.copy:
+    src: files/qcluster.sh
+    dest: '{{ jaspar_app_dir }}/qcluster.sh'
+    chmod: '0755'
 
 - name: Start django-q cluster
   become: true

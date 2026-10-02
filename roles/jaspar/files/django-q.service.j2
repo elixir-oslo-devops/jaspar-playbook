@@ -1,0 +1,13 @@
+[Unit]
+Description=Django-Q
+After=httpd.service
+
+[Service]
+Type=simple
+User=apache
+WorkingDirectory={{ jaspar_app_dir }}
+ExecStart={{ jaspar_app_dir }}/qcluster.sh start
+ExecStop={{ jaspar_app_dir }}/qcluster.sh stop
+
+[Install]
+WantedBy=multi-user.target
