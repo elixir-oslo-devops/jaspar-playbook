@@ -1,13 +1,15 @@
 [Unit]
-Description=Django-Q
+Description=Django-Q cluster
 After=httpd.service
 
 [Service]
 Type=simple
 User=apache
 WorkingDirectory={{ jaspar_app_dir }}
-ExecStart={{ jaspar_app_dir }}/qcluster.sh start
-ExecStop={{ jaspar_app_dir }}/qcluster.sh stop
+Environment=PYTHONPATH={{ pythonpath.stdout }} DJANGO_SETTINGS_MODULE=jaspar.settings2026
+ExecStart=python {{ jaspar_app_dir }}/manage.py qcluster
+#StandardOutput=file:/var/log/qcluster.log
+#StandardError=file:/var/log/qcluster.log
 
 [Install]
 WantedBy=multi-user.target
